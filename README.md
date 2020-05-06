@@ -83,11 +83,11 @@ As shown in the demo above, animations are as follows:
 ```
 ## iOS extra animations
 ```json
-  '1': 'BallRotateChase',
-  '2': 'Orbit',
-  '3': 'AudioEqualizer',
-  '4': 'CircleStrokeSpin',
-  '5': 'BallDoubleBounce'
+  '29': 'BallRotateChase',
+  '30': 'Orbit',
+  '31': 'AudioEqualizer',
+  '32': 'CircleStrokeSpin',
+  '33': 'BallDoubleBounce'
 ```
 # Demo
 A fully working demo is located at [example folder](./example/App.js)
