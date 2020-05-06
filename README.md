@@ -2,6 +2,15 @@
   <div>
     React Native Loader Kit
   </div>
+  <div>
+  <img src="https://img.shields.io/npm/dw/react-native-loader-kit" />
+
+  <img src="https://img.shields.io/npm/v/react-native-loader-kit" />
+
+  <img src="https://img.shields.io/github/license/maitrungduc1410/react-native-loader-kit" />
+
+  <img src="https://img.shields.io/github/stars/maitrungduc1410/react-native-loader-kit?style=social" />
+  </div>
   <br>
   <div align="center">
     <img src="./demo_android.gif" style="margin-right: 30px;" />
@@ -82,5 +91,8 @@ As shown in the demo above, animations are as follows:
 ```
 # Demo
 A fully working demo is located at [example folder](./example/App.js)
+
+# Thanks
+Big thanks to [81813780](https://github.com/81813780/AVLoadingIndicatorView) and [ninjaprox](https://github.com/ninjaprox/NVActivityIndicatorView) for their wonderful works
 
 If you like this project, encourage me by giving me a ⭐️. Happy hacking

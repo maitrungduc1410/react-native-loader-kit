@@ -1,8 +1,8 @@
 {
   "name": "react-native-loader-kit",
   "title": "React Native Loader Kit",
-  "version": "1.0.0",
-  "description": "TODO",
+  "description": "React Native beautiful loader kit",
+  "version": "1.0.1",
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
@@ -13,8 +13,18 @@
     "url": "git+https://github.com/maitrungduc1410/react-native-loader-kit.git",
     "baseUrl": "https://github.com/maitrungduc1410/react-native-loader-kit"
   },
+  "bugs": {
+    "url": "https://github.com/maitrungduc1410/react-native-loader-kit/issues"
+  },
+  "homepage": "https://github.com/maitrungduc1410/react-native-loader-kit",
   "keywords": [
-    "react-native"
+    "react-native",
+    "react native loader kit",
+    "react-native-loader-kit",
+    "react native spinner",
+    "react native spin kit",
+    "react native loading",
+    "react native indicator"
   ],
   "author": {
     "name": "Mai Trung Duc",

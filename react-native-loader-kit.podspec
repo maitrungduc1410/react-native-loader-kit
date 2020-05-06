@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
   # brief license entry:
   s.license      = "MIT"
   # optional - use expanded license entry instead:
-  # s.license    = { :type => "MIT", :file => "LICENSE" }
+  s.license      = { :type => "MIT", :file => "LICENSE" }
   s.authors      = { "Mai Trung Duc" => "maitrungduc1410@gmail.com" }
   s.platforms    = { :ios => "9.0" }
   s.source       = { :git => "https://github.com/maitrungduc1410/react-native-loader-kit.git", :tag => "#{s.version}" }
