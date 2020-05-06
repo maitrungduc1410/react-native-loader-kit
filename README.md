@@ -3,13 +3,22 @@
     React Native Loader Kit
   </div>
   <div>
-  <img src="https://img.shields.io/npm/dw/react-native-loader-kit" />
+  <a href="https://www.npmjs.com/package/react-native-loader-kit" target="_blank">
+    <img src="https://img.shields.io/npm/dw/react-native-loader-kit" />
+  </a>
 
-  <img src="https://img.shields.io/npm/v/react-native-loader-kit" />
+  <a href="https://www.npmjs.com/package/react-native-loader-kit" target="_blank">
+    <img src="https://img.shields.io/npm/v/react-native-loader-kit" />
+  </a>
 
-  <img src="https://img.shields.io/github/license/maitrungduc1410/react-native-loader-kit" />
+  <a href="https://github.com/maitrungduc1410/react-native-loader-kit" target="_blank">
+    <img src="https://img.shields.io/github/license/maitrungduc1410/react-native-loader-kit" />
+  </a>
 
-  <img src="https://img.shields.io/github/stars/maitrungduc1410/react-native-loader-kit?style=social" />
+  <a href="https://github.com/maitrungduc1410/react-native-loader-kit" target="_blank">
+    <img src="https://img.shields.io/github/stars/maitrungduc1410/react-native-loader-kit?style=social" />
+  </a>
+  
   </div>
   <br>
   <div align="center">
