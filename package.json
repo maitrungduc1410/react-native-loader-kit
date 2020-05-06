@@ -1,0 +1,34 @@
+{
+  "name": "react-native-loader-kit",
+  "title": "React Native Loader Kit",
+  "version": "1.0.0",
+  "description": "TODO",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maitrungduc1410/react-native-loader-kit.git",
+    "baseUrl": "https://github.com/maitrungduc1410/react-native-loader-kit"
+  },
+  "keywords": [
+    "react-native"
+  ],
+  "author": {
+    "name": "Mai Trung Duc",
+    "email": "maitrungduc1410@gmail.com"
+  },
+  "license": "MIT",
+  "licenseFilename": "LICENSE",
+  "readmeFilename": "README.md",
+  "peerDependencies": {
+    "react": "^16.8.1",
+    "react-native": ">=0.60.0-rc.0 <1.0.x"
+  },
+  "devDependencies": {
+    "react": "^16.9.0",
+    "react-native": "^0.61.5"
+  }
+}
