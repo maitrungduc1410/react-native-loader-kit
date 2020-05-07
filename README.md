@@ -25,6 +25,9 @@
     <img src="./demo_android.gif" style="margin-right: 30px;" />
     <img src="./demo_ios.gif" />
   </div>
+  <h2 align="center">
+    If you like this project, encourage me by giving a ⭐️. Happy hacking
+  </h2>
 </h1>
 
 # Table of Contents
@@ -102,6 +105,4 @@ As shown in the demo above, animations are as follows:
 A fully working demo is located at [example folder](./example/App.js)
 
 # Thanks
-Big thanks to [81813780](https://github.com/81813780/AVLoadingIndicatorView) and [ninjaprox](https://github.com/ninjaprox/NVActivityIndicatorView) for their wonderful works
-
-If you like this project, encourage me by giving me a ⭐️. Happy hacking
+Big thanks to [81813780](https://github.com/81813780/AVLoadingIndicatorView) and [ninjaprox](https://github.com/ninjaprox/NVActivityIndicatorView) for their great works
