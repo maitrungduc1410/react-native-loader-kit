@@ -59,7 +59,7 @@ import LoaderKit from 'react-native-loader-kit'
   color={'red'} // Optional: color can be: 'red', 'green',... or '#ddd', '#ffffff',...
 />
 ```
-> Note: size is required for iOS
+> Note: size is required for iOS and should equal to `width` and `height`
 # List animations
 As shown in the demo above, animations are as follows: 
 ## Default animations (both Android and iOS)
