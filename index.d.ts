@@ -3,7 +3,7 @@
 export interface LoaderKitProps {
   name?: string,
   color?: string
-  size?: string
+  size?: number
 }
 
 declare const LoaderKit: (props: LoaderKitProps) => JSX.Element

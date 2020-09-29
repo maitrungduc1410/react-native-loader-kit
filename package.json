@@ -2,7 +2,7 @@
   "name": "react-native-loader-kit",
   "title": "React Native Loader Kit",
   "description": "✳️Purely native loader indicators for React Native✳️",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
