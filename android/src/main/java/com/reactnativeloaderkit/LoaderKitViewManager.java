@@ -8,24 +8,30 @@ import androidx.annotation.NonNull;
 import com.facebook.react.uimanager.SimpleViewManager;
 import com.facebook.react.uimanager.ThemedReactContext;
 import com.facebook.react.uimanager.annotations.ReactProp;
+import com.wang.avi.AVLoadingIndicatorView;
 
-public class LoaderKitViewManager extends SimpleViewManager<View> {
-    public static final String REACT_CLASS = "LoaderKitView";
+public class LoaderKitViewManager extends SimpleViewManager<AVLoadingIndicatorView> {
+  public static final String REACT_CLASS = "LoaderKitView";
 
-    @Override
-    @NonNull
-    public String getName() {
-        return REACT_CLASS;
-    }
+  @Override
+  @NonNull
+  public String getName() {
+    return REACT_CLASS;
+  }
 
-    @Override
-    @NonNull
-    public View createViewInstance(ThemedReactContext reactContext) {
-        return new View(reactContext);
-    }
+  @Override
+  public AVLoadingIndicatorView createViewInstance(ThemedReactContext context) {
+    AVLoadingIndicatorView avi = new AVLoadingIndicatorView(context, null, R.style.AVLoadingIndicatorView);
+    return avi;
+  }
 
-    @ReactProp(name = "color")
-    public void setColor(View view, String color) {
-        view.setBackgroundColor(Color.parseColor(color));
-    }
+  @ReactProp(name = "name")
+  public void setName(AVLoadingIndicatorView view, String name) {
+    view.setIndicator(name + "Indicator");
+  }
+
+  @ReactProp(name = "color")
+  public void setColor(AVLoadingIndicatorView view, int color) {
+    view.setIndicatorColor(color);
+  }
 }

@@ -1,32 +1,117 @@
+import NVActivityIndicatorView
+
 @objc(LoaderKitViewManager)
 class LoaderKitViewManager: RCTViewManager {
-
-  override func view() -> (LoaderKitView) {
-    return LoaderKitView()
-  }
+    
+    override func view() -> (LoaderKitView) {
+        return LoaderKitView()
+    }
+    
+    @objc override static func requiresMainQueueSetup() -> Bool {
+        return true
+    }
 }
 
 class LoaderKitView : UIView {
-
-  @objc var color: String = "" {
-    didSet {
-      self.backgroundColor = hexStringToUIColor(hexColor: color)
+    let animations = [
+        "BallPulse": NVActivityIndicatorType.ballPulse,
+        "BallGridPulse": NVActivityIndicatorType.ballGridPulse,
+        "BallClipRotate": NVActivityIndicatorType.ballClipRotate,
+        "SquareSpin": NVActivityIndicatorType.squareSpin,
+        "BallClipRotatePulse": NVActivityIndicatorType.ballClipRotatePulse,
+        "BallClipRotateMultiple": NVActivityIndicatorType.ballClipRotateMultiple,
+        "BallPulseRise": NVActivityIndicatorType.ballPulseRise,
+        "BallRotate": NVActivityIndicatorType.ballRotate,
+        "CubeTransition": NVActivityIndicatorType.cubeTransition,
+        "BallZigZag": NVActivityIndicatorType.ballZigZag,
+        "BallZigZagDeflect": NVActivityIndicatorType.ballZigZagDeflect,
+        "BallTrianglePath": NVActivityIndicatorType.ballTrianglePath,
+        "BallScale": NVActivityIndicatorType.ballScale,
+        "LineScale": NVActivityIndicatorType.lineScale,
+        "LineScaleParty": NVActivityIndicatorType.lineScaleParty,
+        "BallScaleMultiple": NVActivityIndicatorType.ballScaleMultiple,
+        "BallPulseSync": NVActivityIndicatorType.ballPulseSync,
+        "BallBeat": NVActivityIndicatorType.ballBeat,
+        "BallDoubleBounce": NVActivityIndicatorType.ballDoubleBounce,
+        "LineScalePulseOut": NVActivityIndicatorType.lineScalePulseOut,
+        "LineScalePulseOutRapid": NVActivityIndicatorType.lineScalePulseOutRapid,
+        "BallScaleRipple": NVActivityIndicatorType.ballScaleRipple,
+        "BallScaleRippleMultiple": NVActivityIndicatorType.ballScaleRippleMultiple,
+        "BallSpinFadeLoader": NVActivityIndicatorType.ballSpinFadeLoader,
+        "LineSpinFadeLoader": NVActivityIndicatorType.lineSpinFadeLoader,
+        "TriangleSkewSpin": NVActivityIndicatorType.triangleSkewSpin,
+        "Pacman": NVActivityIndicatorType.pacman,
+        "BallGridBeat": NVActivityIndicatorType.ballGridBeat,
+        "SemiCircleSpin": NVActivityIndicatorType.semiCircleSpin,
+        "BallRotateChase": NVActivityIndicatorType.ballRotateChase,
+        "Orbit": NVActivityIndicatorType.orbit,
+        "AudioEqualizer": NVActivityIndicatorType.audioEqualizer,
+        "CircleStrokeSpin": NVActivityIndicatorType.circleStrokeSpin,
+    ]
+    
+    var loader: NVActivityIndicatorView!
+    var currentSize = 48.0
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
+        let frameObj = CGRect(x: 0, y: 0, width: 200, height: 200)
+        self.loader = NVActivityIndicatorView(frame: frameObj, type: NVActivityIndicatorView.DEFAULT_TYPE)
+        self.addSubview(self.loader)
+        self.loader.startAnimating()
     }
-  }
-
-  func hexStringToUIColor(hexColor: String) -> UIColor {
-    let stringScanner = Scanner(string: hexColor)
-
-    if(hexColor.hasPrefix("#")) {
-      stringScanner.scanLocation = 1
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
-    var color: UInt32 = 0
-    stringScanner.scanHexInt32(&color)
-
-    let r = CGFloat(Int(color >> 16) & 0x000000FF)
-    let g = CGFloat(Int(color >> 8) & 0x000000FF)
-    let b = CGFloat(Int(color) & 0x000000FF)
-
-    return UIColor(red: r / 255.0, green: g / 255.0, blue: b / 255.0, alpha: 1)
-  }
+    
+    @objc
+    var size: NSNumber? {
+        set {
+            if newValue != nil {
+                self.loader.stopAnimating()
+                let frameObj = CGRect(x: 0, y: 0, width: newValue!.doubleValue, height: newValue!.doubleValue)
+                self.loader.frame = frameObj
+                self.loader.startAnimating()
+                
+                self.currentSize = newValue!.doubleValue
+            }
+        }
+        get {
+            return nil;
+        }
+    }
+    
+    @objc
+    var name: NSString? {
+        set {
+            if newValue != nil && animations[newValue! as String] != nil {
+                self.loader.stopAnimating()
+                let frameObj = CGRect(x: 0, y: 0, width: self.currentSize, height: self.currentSize)
+                self.loader.frame = frameObj
+                self.loader.type = animations[newValue! as String]!
+                self.loader.startAnimating()
+                
+            }
+        }
+        get {
+            return nil;
+        }
+    }
+    
+    @objc
+    var color: NSNumber? {
+        set {
+            if newValue != nil {
+                self.loader.stopAnimating()
+                let frameObj = CGRect(x: 0, y: 0, width: self.currentSize, height: self.currentSize)
+                self.loader.frame = frameObj
+                self.loader.color = RCTConvert.uiColor(newValue)
+                self.loader.startAnimating()
+            }
+        }
+        get {
+            return nil;
+        }
+    }
 }

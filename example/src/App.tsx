@@ -1,25 +1,46 @@
-import * as React from 'react';
+import React from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  StatusBar,
+  SafeAreaView,
+  Dimensions,
+} from 'react-native';
+import LoaderKit from 'react-native-loader-kit';
+import animations from '../../src/animations';
 
-import { StyleSheet, View } from 'react-native';
-import { LoaderKitView } from 'react-native-loader-kit';
+const { height } = Dimensions.get('window');
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <LoaderKitViewManager color="#32a852" style={styles.box} />
+const App = () => {
+  const renderLoaders = animations.map((item, index) => (
+    <View style={{ margin: 10 }} key={index}>
+      <Text style={{ color: 'white', textAlign: 'center' }}>{index + 1}</Text>
+      <LoaderKit
+        style={{ width: 50, height: 50, marginTop: 3 }}
+        name={item}
+        size={50}
+      />
     </View>
+  ));
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle={'light-content'} backgroundColor={'#ed5565'} />
+      {renderLoaders}
+    </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    alignItems: 'center',
+    backgroundColor: '#ed5565',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    height,
     justifyContent: 'center',
-  },
-  box: {
-    width: 60,
-    height: 60,
-    marginVertical: 20,
+    alignItems: 'center',
   },
 });
+
+export default App;
