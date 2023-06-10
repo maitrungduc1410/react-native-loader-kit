@@ -1,6 +1,6 @@
 {
   "name": "react-native-loader-kit",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "✳️Purely native loader indicators for React Native✳️",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",
