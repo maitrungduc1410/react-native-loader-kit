@@ -46,7 +46,7 @@ With yarn:
 ## Extra setup step for iOS
 Run the following command to setup for iOS:
 ```
-cd ios && pod install
+npx pod-install ios
 ```
 # Usage
 ```js
@@ -102,7 +102,7 @@ As shown in the demo above, animations are as follows:
   '33': 'BallDoubleBounce'
 ```
 # Demo
-A fully working demo is located at [example folder](./example/App.js)
+A fully working demo is located at [example folder](./example/src/App.tsx)
 
 # Thanks
 Big thanks to [81813780](https://github.com/81813780/AVLoadingIndicatorView) and [ninjaprox](https://github.com/ninjaprox/NVActivityIndicatorView) for their great works

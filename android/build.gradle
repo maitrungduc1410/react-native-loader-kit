@@ -56,5 +56,5 @@ repositories {
 dependencies {
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
-    implementation 'com.github.chenzj-king:AVLoadingIndicatorView:2.1.1'
+    implementation "io.github.maitrungduc1410:AVLoadingIndicatorView:2.1.4"
 }
