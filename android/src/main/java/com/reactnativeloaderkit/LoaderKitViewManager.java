@@ -21,8 +21,7 @@ public class LoaderKitViewManager extends SimpleViewManager<AVLoadingIndicatorVi
 
   @Override
   public AVLoadingIndicatorView createViewInstance(ThemedReactContext context) {
-    AVLoadingIndicatorView avi = new AVLoadingIndicatorView(context, null, R.style.AVLoadingIndicatorView);
-    return avi;
+    return new AVLoadingIndicatorView(context, null, com.wang.avi.R.style.AVLoadingIndicatorView);
   }
 
   @ReactProp(name = "name")
