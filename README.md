@@ -43,13 +43,13 @@ With npm:
 With yarn:
 `$ yarn add react-native-loader-kit`
 
-## For iOS
+## For iOS (React Native CLI project)
 Run the following command to setup for iOS:
 ```
 npx pod-install ios
 ```
-## For Expo
-You need to run `prebuild` in order for native code takes effect:
+## For Expo project
+You need to run `prebuild` in order for native code takes effect (only if you never run this command before):
 ```
 npx expo prebuild
 ```
