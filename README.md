@@ -49,9 +49,11 @@ Run the following command to setup for iOS:
 npx pod-install ios
 ```
 ## For Expo project
-You need to run `prebuild` in order for native code takes effect (only if you never run this command before):
+You need to run `prebuild` in order for native code takes effect:
 ```
 npx expo prebuild
+
+npx pod-install ios
 ```
 # Usage
 ```js
