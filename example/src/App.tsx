@@ -7,8 +7,7 @@ import {
   SafeAreaView,
   Dimensions,
 } from 'react-native';
-import LoaderKit from 'react-native-loader-kit';
-import animations from '../../src/animations';
+import LoaderKit, { animations } from 'react-native-loader-kit';
 
 const { height } = Dimensions.get('window');
 
@@ -16,11 +15,7 @@ const App = () => {
   const renderLoaders = animations.map((item, index) => (
     <View style={{ margin: 10 }} key={index}>
       <Text style={{ color: 'white', textAlign: 'center' }}>{index + 1}</Text>
-      <LoaderKit
-        style={{ width: 50, height: 50, marginTop: 3 }}
-        name={item}
-        size={50}
-      />
+      <LoaderKit style={{ width: 50, height: 50, marginTop: 3 }} name={item} />
     </View>
   ));
 

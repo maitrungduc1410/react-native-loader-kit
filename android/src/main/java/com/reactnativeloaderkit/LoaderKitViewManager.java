@@ -26,10 +26,10 @@ public class LoaderKitViewManager extends SimpleViewManager<AVLoadingIndicatorVi
 
   @ReactProp(name = "name")
   public void setName(AVLoadingIndicatorView view, String name) {
-    view.setIndicator(name + "Indicator");
+    view.setIndicator(name != null ? name + "Indicator" : "BallPulseIndicator");
   }
 
-  @ReactProp(name = "color")
+  @ReactProp(name = "color", defaultInt = Color.WHITE)
   public void setColor(AVLoadingIndicatorView view, int color) {
     view.setIndicatorColor(color);
   }

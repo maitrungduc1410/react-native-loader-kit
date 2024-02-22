@@ -2,8 +2,8 @@ import {
   requireNativeComponent,
   UIManager,
   Platform,
-  ViewStyle,
   processColor,
+  ViewProps,
 } from 'react-native';
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -15,19 +15,17 @@ const LINKING_ERROR =
   '- You rebuilt the app after installing the package\n' +
   '- You are not using Expo managed workflow\n';
 
-type BaseProps = {
+interface BaseProps extends ViewProps {
   name?: string;
-  size?: number;
-  style: ViewStyle;
-};
+}
 
-type LoaderKitProps = {
+interface LoaderKitProps extends BaseProps {
   color?: string;
-} & BaseProps;
+}
 
-type LoaderKitNativeProps = {
+interface LoaderKitNativeProps extends BaseProps {
   color?: number;
-} & BaseProps;
+}
 
 const ComponentName = 'LoaderKitView';
 const LoaderKitNative =
@@ -40,7 +38,6 @@ const LoaderKit = (props: LoaderKitProps) => {
 LoaderKit.propTypes = {
   name: PropTypes.oneOf(animations),
   color: PropTypes.string,
-  size: Platform.OS === 'ios' ? PropTypes.number.isRequired : PropTypes.number,
 };
 
 export default UIManager.getViewManagerConfig(ComponentName) != null
@@ -48,3 +45,4 @@ export default UIManager.getViewManagerConfig(ComponentName) != null
   : () => {
       throw new Error(LINKING_ERROR);
     };
+export { animations };

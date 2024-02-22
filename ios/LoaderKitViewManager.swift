@@ -49,16 +49,22 @@ class LoaderKitView : UIView {
         "CircleStrokeSpin": NVActivityIndicatorType.circleStrokeSpin,
     ]
     
-    var loader: NVActivityIndicatorView!
-    var currentSize = 48.0
+    private var loader = NVActivityIndicatorView(frame: .zero, type: NVActivityIndicatorView.DEFAULT_TYPE)
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        let frameObj = CGRect(x: 0, y: 0, width: 200, height: 200)
-        self.loader = NVActivityIndicatorView(frame: frameObj, type: NVActivityIndicatorView.DEFAULT_TYPE)
-        self.addSubview(self.loader)
-        self.loader.startAnimating()
+        addSubview(loader)
+        
+        loader.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            loader.leadingAnchor.constraint(equalTo: leadingAnchor),
+            loader.trailingAnchor.constraint(equalTo: trailingAnchor),
+            loader.topAnchor.constraint(equalTo: topAnchor),
+            loader.bottomAnchor.constraint(equalTo: bottomAnchor),
+        ])
+        
+        loader.startAnimating()
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -66,52 +72,20 @@ class LoaderKitView : UIView {
     }
     
     @objc
-    var size: NSNumber? {
-        set {
-            if newValue != nil {
-                self.loader.stopAnimating()
-                let frameObj = CGRect(x: 0, y: 0, width: newValue!.doubleValue, height: newValue!.doubleValue)
-                self.loader.frame = frameObj
-                self.loader.startAnimating()
-                
-                self.currentSize = newValue!.doubleValue
-            }
-        }
-        get {
-            return nil;
-        }
-    }
-    
-    @objc
     var name: NSString? {
-        set {
-            if newValue != nil && animations[newValue! as String] != nil {
-                self.loader.stopAnimating()
-                let frameObj = CGRect(x: 0, y: 0, width: self.currentSize, height: self.currentSize)
-                self.loader.frame = frameObj
-                self.loader.type = animations[newValue! as String]!
-                self.loader.startAnimating()
-                
-            }
-        }
-        get {
-            return nil;
+        didSet {
+            loader.stopAnimating()
+            loader.type = (name != nil ? animations[name! as String] : animations["BallPulse"])!
+            loader.startAnimating()
         }
     }
     
     @objc
     var color: NSNumber? {
-        set {
-            if newValue != nil {
-                self.loader.stopAnimating()
-                let frameObj = CGRect(x: 0, y: 0, width: self.currentSize, height: self.currentSize)
-                self.loader.frame = frameObj
-                self.loader.color = RCTConvert.uiColor(newValue)
-                self.loader.startAnimating()
-            }
-        }
-        get {
-            return nil;
+        didSet {
+            loader.stopAnimating()
+            loader.color = color != nil ? RCTConvert.uiColor(color) : .white
+            loader.startAnimating()
         }
     }
 }

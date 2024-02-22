@@ -3,11 +3,10 @@ buildscript {
         repositories {
             google()
             mavenCentral()
-            jcenter()
         }
 
         dependencies {
-            classpath 'com.android.tools.build:gradle:3.5.3'
+            classpath 'com.android.tools.build:gradle:3.5.4'
         }
     }
 }
@@ -19,10 +18,10 @@ def safeExtGet(prop, fallback) {
 }
 
 android {
-    compileSdkVersion safeExtGet('LoaderKit_compileSdkVersion', 29)
+    compileSdkVersion safeExtGet('LoaderKit_compileSdkVersion', 30)
     defaultConfig {
         minSdkVersion safeExtGet('LoaderKit_minSdkVersion', 16)
-        targetSdkVersion safeExtGet('LoaderKit_targetSdkVersion', 29)
+        targetSdkVersion safeExtGet('LoaderKit_targetSdkVersion', 30)
         versionCode 1
         versionName "1.0"
 
@@ -50,7 +49,6 @@ repositories {
     }
     google()
     mavenCentral()
-    jcenter()
 }
 
 dependencies {

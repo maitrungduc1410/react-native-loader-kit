@@ -43,10 +43,15 @@ With npm:
 With yarn:
 `$ yarn add react-native-loader-kit`
 
-## Extra setup step for iOS
+## For iOS
 Run the following command to setup for iOS:
 ```
 npx pod-install ios
+```
+## For Expo
+You need to run `prebuild` in order for native code takes effect:
+```
+npx expo prebuild
 ```
 # Usage
 ```js
@@ -55,11 +60,9 @@ import LoaderKit from 'react-native-loader-kit'
 <LoaderKit
   style={{ width: 50, height: 50 }}
   name={'BallPulse'} // Optional: see list of animations below
-  size={50} // Required on iOS
   color={'red'} // Optional: color can be: 'red', 'green',... or '#ddd', '#ffffff',...
 />
 ```
-> Note: size is required for iOS and should equal to `width` and `height`
 # List animations
 As shown in the demo above, animations are as follows: 
 ## Default animations (both Android and iOS)
