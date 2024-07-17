@@ -106,6 +106,20 @@ As shown in the demo above, animations are as follows:
   '32': 'CircleStrokeSpin',
   '33': 'BallDoubleBounce'
 ```
+# Troubleshooting
+## uses-sdk:minSdkVersion XX cannot be smaller than version YY
+
+You can override sdk version to use any version in your `android/build.gradle` > `buildscript` > `ext`
+```gradle
+buildscript {
+    ext {
+        LoaderKit_compileSdkVersion = 34
+        LoaderKit_minSdkVersion = 26
+        LoaderKit_targetSdkVersion = 34
+    }
+}
+```
+
 # Demo
 A fully working demo is located at [example folder](./example/src/App.tsx)
 
