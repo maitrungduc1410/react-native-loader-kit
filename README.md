@@ -55,6 +55,8 @@ npx expo prebuild
 ```
 Then you need to restart your project to make changes take effect
 
+> Note that on iOS you'll need to run on real device, Expo Go may not work because of library linking
+
 # Usage
 ```js
 import LoaderKit from 'react-native-loader-kit'
