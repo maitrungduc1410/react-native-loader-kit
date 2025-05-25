@@ -52,9 +52,9 @@ npx pod-install ios
 You need to run `prebuild` in order for native code takes effect:
 ```
 npx expo prebuild
-
-npx pod-install ios
 ```
+Then you need to restart your project to make changes take effect
+
 # Usage
 ```js
 import LoaderKit from 'react-native-loader-kit'
