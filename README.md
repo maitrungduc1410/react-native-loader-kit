@@ -15,37 +15,45 @@
     <img src="https://img.shields.io/github/license/maitrungduc1410/react-native-loader-kit" />
   </a>
 
-  <a href="https://github.com/maitrungduc1410/react-native-loader-kit" target="_blank">
-    <img src="https://img.shields.io/github/stars/maitrungduc1410/react-native-loader-kit?style=social" />
-  </a>
-  
   </div>
   <br>
   <div align="center">
     <img src="./images/demo_android.gif" style="margin-right: 30px;" />
     <img src="./images/demo_ios.gif" />
   </div>
-  <h2 align="center">
-    If you like this project, encourage me by giving a ⭐️. Happy hacking
-  </h2>
 </h1>
 
 # Table of Contents
-1. [Installation](#Installation)
+1. [Installation](#installation)
 2. [Usage](#usage)
 3. [List animations](#list-animations)
 4. [Demo](#demo)
 
 # Installation
 With npm:
-`$ npm install react-native-loader-kit --save`
+```sh
+# new arch
+npm install react-native-loader-kit
+
+# old arch
+npm install react-native-loader-kit@^2.0.0
+```
 
 With yarn:
-`$ yarn add react-native-loader-kit`
+```sh
+# new arch
+yarn add react-native-loader-kit
+
+# old arch
+yarn add react-native-loader-kit@^2.0.0
+```
 
 ## For iOS (React Native CLI project)
 Run the following command to setup for iOS:
-```
+```sh
+cd ios && pod install
+
+# or
 npx pod-install ios
 ```
 ## For Expo project
@@ -55,59 +63,65 @@ npx expo prebuild
 ```
 Then you need to restart your project to make changes take effect
 
-> Note that on iOS you'll need to run on real device, Expo Go may not work because of library linking
-
 # Usage
 ```js
-import LoaderKit from 'react-native-loader-kit'
+// v3
+import {
+  LoaderKitView,
+} from 'react-native-loader-kit';
 
-<LoaderKit
+// v2
+import LoaderKitView from 'react-native-loader-kit'
+
+<LoaderKitView
   style={{ width: 50, height: 50 }}
-  name={'BallPulse'} // Optional: see list of animations below
+  name={'BallPulse'}
+  animationSpeedMultiplier={1.0} // speed up/slow down animation, default: 1.0, larger is faster
   color={'red'} // Optional: color can be: 'red', 'green',... or '#ddd', '#ffffff',...
 />
 ```
+
+> `animationSpeedMultiplier` is only supported from v3
+
 # List animations
-As shown in the demo above, animations are as follows: 
-## Default animations (both Android and iOS)
-```json
-  '1': 'BallPulse',
-  '2': 'BallGridPulse',
-  '3': 'BallClipRotate',
-  '4': 'SquareSpin',
-  '5': 'BallClipRotatePulse',
-  '6': 'BallClipRotateMultiple',
-  '7': 'BallPulseRise',
-  '8': 'BallRotate',
-  '9': 'CubeTransition',
-  '10': 'BallZigZag',
-  '11': 'BallZigZagDeflect',
-  '12': 'BallTrianglePath',
-  '13': 'BallScale',
-  '14': 'LineScale',
-  '15': 'LineScaleParty',
-  '16': 'BallScaleMultiple',
-  '17': 'BallPulseSync',
-  '18': 'BallBeat',
-  '19': 'LineScalePulseOut',
-  '20': 'LineScalePulseOutRapid',
-  '21': 'BallScaleRipple',
-  '22': 'BallScaleRippleMultiple',
-  '23': 'BallSpinFadeLoader',
-  '24': 'LineSpinFadeLoader',
-  '25': 'TriangleSkewSpin',
-  '26': 'Pacman',
-  '27': 'BallGridBeat',
-  '28': 'SemiCircleSpin'
-```
-## iOS extra animations
-```json
-  '29': 'BallRotateChase',
-  '30': 'Orbit',
-  '31': 'AudioEqualizer',
-  '32': 'CircleStrokeSpin',
-  '33': 'BallDoubleBounce'
-```
+
+Common:
+- BallPulse
+- BallGridPulse
+- BallClipRotate
+- SquareSpin
+- BallClipRotatePulse
+- BallClipRotateMultiple
+- BallPulseRise
+- BallRotate
+- CubeTransition
+- BallZigZag
+- BallZigZagDeflect
+- BallTrianglePath
+- BallScale
+- LineScale
+- LineScaleParty
+- BallScaleMultiple
+- BallPulseSync
+- BallBeat
+- LineScalePulseOut
+- LineScalePulseOutRapid
+- BallScaleRipple
+- BallScaleRippleMultiple
+- BallSpinFadeLoader
+- LineSpinFadeLoader
+- TriangleSkewSpin
+- Pacman
+- BallGridBeat
+- SemiCircleSpin
+- Orbit
+- AudioEqualizer
+- BallDoubleBounce
+
+iOS only:
+- BallRotateChase
+- CircleStrokeSpin
+
 # Troubleshooting
 ## uses-sdk:minSdkVersion XX cannot be smaller than version YY
 
@@ -115,9 +129,11 @@ You can override sdk version to use any version in your `android/build.gradle` >
 ```gradle
 buildscript {
     ext {
-        LoaderKit_compileSdkVersion = 34
-        LoaderKit_minSdkVersion = 26
-        LoaderKit_targetSdkVersion = 34
+        LoaderKit_kotlinVersion=2.0.21
+        LoaderKit_minSdkVersion=24
+        LoaderKit_targetSdkVersion=34
+        LoaderKit_compileSdkVersion=35
+        LoaderKit_ndkVersion=27.1.12297006
     }
 }
 ```

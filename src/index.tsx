@@ -1,48 +1,39 @@
-import {
-  requireNativeComponent,
-  UIManager,
-  Platform,
-  processColor,
-  ViewProps,
-} from 'react-native';
 import React from 'react';
-import PropTypes from 'prop-types';
-import animations from './animations';
+import { processColor } from 'react-native';
+import type { ColorValue, ViewProps } from 'react-native';
+import LoaderKitViewNativeComponent from './LoaderKitViewNativeComponent';
+import type { IndicatorName } from './types';
 
-const LINKING_ERROR =
-  `The package 'react-native-loader-kit' doesn't seem to be linked. Make sure: \n\n` +
-  Platform.select({ ios: "- You have run 'pod install'\n", default: '' }) +
-  '- You rebuilt the app after installing the package\n' +
-  '- You are not using Expo managed workflow\n';
-
-interface BaseProps extends ViewProps {
-  name?: string;
+interface LoaderKitViewProps extends ViewProps {
+  name: IndicatorName;
+  color?: ColorValue;
+  animationSpeedMultiplier?: number; // Default is 1.0
 }
 
-interface LoaderKitProps extends BaseProps {
-  color?: string;
-}
-
-interface LoaderKitNativeProps extends BaseProps {
-  color?: number;
-}
-
-const ComponentName = 'LoaderKitView';
-const LoaderKitNative =
-  requireNativeComponent<LoaderKitNativeProps>(ComponentName);
-
-const LoaderKit = (props: LoaderKitProps) => {
-  return <LoaderKitNative {...props} color={processColor(props.color)} />;
+const LoaderKitView: React.FC<LoaderKitViewProps> = (props) => {
+  return (
+    <LoaderKitViewNativeComponent
+      {...props}
+      color={processColor(props.color) as number}
+    />
+  );
 };
 
-LoaderKit.propTypes = {
-  name: PropTypes.oneOf(animations),
-  color: PropTypes.string,
-};
+export default LoaderKitView;
+export { LoaderKitView };
+export type { LoaderKitViewProps };
 
-export default UIManager.getViewManagerConfig(ComponentName) != null
-  ? LoaderKit
-  : () => {
-      throw new Error(LINKING_ERROR);
-    };
-export { animations };
+// Export types and utilities for type-safe usage
+export type {
+  IndicatorName,
+  CommonIndicatorName,
+  IOSOnlyIndicatorName,
+} from './types';
+
+export {
+  COMMON_INDICATORS,
+  IOS_ONLY_INDICATORS,
+  ALL_INDICATORS,
+  isIndicatorAvailableOnPlatform,
+  getAvailableIndicators,
+} from './types';
