@@ -8,7 +8,7 @@ PODS:
   - hermes-engine (0.79.2):
     - hermes-engine/Pre-built (= 0.79.2)
   - hermes-engine/Pre-built (0.79.2)
-  - LoaderKit (0.1.0):
+  - LoaderKit (3.0.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1916,7 +1916,7 @@ SPEC CHECKSUMS:
   fmt: a40bb5bd0294ea969aaaba240a927bd33d878cdd
   glog: 5683914934d5b6e4240e497e0f4a3b42d1854183
   hermes-engine: 314be5250afa5692b57b4dd1705959e1973a8ebe
-  LoaderKit: d1bfefd29c001be3626e8372440eaa0fade5415c
+  LoaderKit: 984fcf908338cee4137a65115a0f44df26e9754a
   NVActivityIndicatorView-ObjC: a2394f53d84c32f71823743a2030e0378d40332f
   RCT-Folly: 36fe2295e44b10d831836cc0d1daec5f8abcf809
   RCTDeprecation: 83ffb90c23ee5cea353bd32008a7bca100908f8c
@@ -1955,14 +1955,14 @@ SPEC CHECKSUMS:
   React-performancetimeline: abf31259d794c9274b3ea19c5016186925eec6c4
   React-RCTActionSheet: a499b0d6d9793886b67ba3e16046a3fef2cdbbc3
   React-RCTAnimation: 2595dcb10a82216a511b54742f8c28d793852ac6
-  React-RCTAppDelegate: f03604b70f57c9469a84a159d8abecf793a5bcff
+  React-RCTAppDelegate: 680583cfafce8d9d80e56d20915348a63499fc39
   React-RCTBlob: e00f9b4e2f151938f4d9864cf33ebf24ac03328a
-  React-RCTFabric: 3945d116fd271598db262d4e6ed5691d431ed9e8
-  React-RCTFBReactNativeSpec: 0f4d4f0da938101f2ca9d5333a8f46e527ad2819
+  React-RCTFabric: 39dae0812c3faae0dd5e20c31bc51d8ee7759787
+  React-RCTFBReactNativeSpec: ec90b9c2b684ab5622511618bf078fcad502690c
   React-RCTImage: dac5e9f8ec476aefe6e60ee640ebc1dfaf1a4dbe
   React-RCTLinking: 494b785a40d952a1dfbe712f43214376e5f0e408
   React-RCTNetwork: b3d7c30cd21793e268db107dd0980cb61b3c1c44
-  React-RCTRuntime: a8ff419d437228e7b8a793b14f9d711e1cbb82af
+  React-RCTRuntime: 87e560264bb9b3eb3fc621b3071353f21c7ce381
   React-RCTSettings: a060c7e381a3896104761b8eed7e284d95e37df3
   React-RCTText: 4f272b72dbb61f390d8c8274528f9fdbff983806
   React-RCTVibration: 0e5326220719aca12473d703aa46693e3b4ce67a
@@ -1983,6 +1983,6 @@ SPEC CHECKSUMS:
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Yoga: 9f110fc4b7aa538663cba3c14cbb1c335f43c13f
 
-PODFILE CHECKSUM: 286c2dc2f5d707fd37bdf1c66cdd1c0526041c17
+PODFILE CHECKSUM: 6cef6942ccf18fe8e571406c1c885d224c1eb48c
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.16.2

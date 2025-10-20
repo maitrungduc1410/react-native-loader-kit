@@ -1,4 +1,44 @@
 #import "LoaderKitView.h"
+#import "NVActivityIndicatorView.h"
+#import "React/RCTConvert.h"
+
+static const NSDictionary *nameToTypeMap = @{
+    @"BallPulse": @(NVActivityIndicatorTypeBallPulse),
+    @"BallGridPulse": @(NVActivityIndicatorTypeBallGridPulse),
+    @"BallClipRotate": @(NVActivityIndicatorTypeBallClipRotate),
+    @"SquareSpin": @(NVActivityIndicatorTypeSquareSpin),
+    @"BallClipRotatePulse": @(NVActivityIndicatorTypeBallClipRotatePulse),
+    @"BallClipRotateMultiple": @(NVActivityIndicatorTypeBallClipRotateMultiple),
+    @"BallPulseRise": @(NVActivityIndicatorTypeBallPulseRise),
+    @"BallRotate": @(NVActivityIndicatorTypeBallRotate),
+    @"CubeTransition": @(NVActivityIndicatorTypeCubeTransition),
+    @"BallZigZag": @(NVActivityIndicatorTypeBallZigZag),
+    @"BallZigZagDeflect": @(NVActivityIndicatorTypeBallZigZagDeflect),
+    @"BallTrianglePath": @(NVActivityIndicatorTypeBallTrianglePath),
+    @"BallScale": @(NVActivityIndicatorTypeBallScale),
+    @"LineScale": @(NVActivityIndicatorTypeLineScale),
+    @"LineScaleParty": @(NVActivityIndicatorTypeLineScaleParty),
+    @"BallScaleMultiple": @(NVActivityIndicatorTypeBallScaleMultiple),
+    @"BallPulseSync": @(NVActivityIndicatorTypeBallPulseSync),
+    @"BallBeat": @(NVActivityIndicatorTypeBallBeat),
+    @"LineScalePulseOut": @(NVActivityIndicatorTypeLineScalePulseOut),
+    @"LineScalePulseOutRapid": @(NVActivityIndicatorTypeLineScalePulseOutRapid),
+    @"BallScaleRipple": @(NVActivityIndicatorTypeBallScaleRipple),
+    @"BallScaleRippleMultiple": @(NVActivityIndicatorTypeBallScaleRippleMultiple),
+    @"BallSpinFadeLoader": @(NVActivityIndicatorTypeBallSpinFadeLoader),
+    @"LineSpinFadeLoader": @(NVActivityIndicatorTypeLineSpinFadeLoader),
+    @"TriangleSkewSpin": @(NVActivityIndicatorTypeTriangleSkewSpin),
+    @"Pacman": @(NVActivityIndicatorTypePacman),
+    @"BallGridBeat": @(NVActivityIndicatorTypeBallGridBeat),
+    @"SemiCircleSpin": @(NVActivityIndicatorTypeSemiCircleSpin),
+    @"BallRotateChase": @(NVActivityIndicatorTypeBallRotateChase),
+    @"Orbit": @(NVActivityIndicatorTypeOrbit),
+    @"AudioEqualizer": @(NVActivityIndicatorTypeAudioEqualizer),
+    @"CircleStrokeSpin": @(NVActivityIndicatorTypeCircleStrokeSpin),
+    @"BallDoubleBounce": @(NVActivityIndicatorTypeBallDoubleBounce)
+};
+
+#ifdef RCT_NEW_ARCH_ENABLED
 
 #import <react/renderer/components/LoaderKitViewSpec/ComponentDescriptors.h>
 #import <react/renderer/components/LoaderKitViewSpec/EventEmitters.h>
@@ -6,9 +46,6 @@
 #import <react/renderer/components/LoaderKitViewSpec/RCTComponentViewHelpers.h>
 
 #import "RCTFabricComponentsPlugins.h"
-
-#import "NVActivityIndicatorView.h"
-#import <React/RCTConvert.h>
 
 using namespace facebook::react;
 
@@ -70,44 +107,7 @@ Class<RCTComponentViewProtocol> LoaderKitViewCls(void)
 - (NVActivityIndicatorType)getIndicatorTypeFromName:(NSString *)name
 {
     if (!name) return NVActivityIndicatorTypeBallPulse;
-    
-    // Map indicator names to types (matching the Android names)
-    NSDictionary *nameToTypeMap = @{
-        @"BallPulse": @(NVActivityIndicatorTypeBallPulse),
-        @"BallGridPulse": @(NVActivityIndicatorTypeBallGridPulse),
-        @"BallClipRotate": @(NVActivityIndicatorTypeBallClipRotate),
-        @"SquareSpin": @(NVActivityIndicatorTypeSquareSpin),
-        @"BallClipRotatePulse": @(NVActivityIndicatorTypeBallClipRotatePulse),
-        @"BallClipRotateMultiple": @(NVActivityIndicatorTypeBallClipRotateMultiple),
-        @"BallPulseRise": @(NVActivityIndicatorTypeBallPulseRise),
-        @"BallRotate": @(NVActivityIndicatorTypeBallRotate),
-        @"CubeTransition": @(NVActivityIndicatorTypeCubeTransition),
-        @"BallZigZag": @(NVActivityIndicatorTypeBallZigZag),
-        @"BallZigZagDeflect": @(NVActivityIndicatorTypeBallZigZagDeflect),
-        @"BallTrianglePath": @(NVActivityIndicatorTypeBallTrianglePath),
-        @"BallScale": @(NVActivityIndicatorTypeBallScale),
-        @"LineScale": @(NVActivityIndicatorTypeLineScale),
-        @"LineScaleParty": @(NVActivityIndicatorTypeLineScaleParty),
-        @"BallScaleMultiple": @(NVActivityIndicatorTypeBallScaleMultiple),
-        @"BallPulseSync": @(NVActivityIndicatorTypeBallPulseSync),
-        @"BallBeat": @(NVActivityIndicatorTypeBallBeat),
-        @"LineScalePulseOut": @(NVActivityIndicatorTypeLineScalePulseOut),
-        @"LineScalePulseOutRapid": @(NVActivityIndicatorTypeLineScalePulseOutRapid),
-        @"BallScaleRipple": @(NVActivityIndicatorTypeBallScaleRipple),
-        @"BallScaleRippleMultiple": @(NVActivityIndicatorTypeBallScaleRippleMultiple),
-        @"BallSpinFadeLoader": @(NVActivityIndicatorTypeBallSpinFadeLoader),
-        @"LineSpinFadeLoader": @(NVActivityIndicatorTypeLineSpinFadeLoader),
-        @"TriangleSkewSpin": @(NVActivityIndicatorTypeTriangleSkewSpin),
-        @"Pacman": @(NVActivityIndicatorTypePacman),
-        @"BallGridBeat": @(NVActivityIndicatorTypeBallGridBeat),
-        @"SemiCircleSpin": @(NVActivityIndicatorTypeSemiCircleSpin),
-        @"BallRotateChase": @(NVActivityIndicatorTypeBallRotateChase),
-        @"Orbit": @(NVActivityIndicatorTypeOrbit),
-        @"AudioEqualizer": @(NVActivityIndicatorTypeAudioEqualizer),
-        @"CircleStrokeSpin": @(NVActivityIndicatorTypeCircleStrokeSpin),
-        @"BallDoubleBounce": @(NVActivityIndicatorTypeBallDoubleBounce)
-    };
-    
+        
     NSNumber *typeNumber = nameToTypeMap[name];
     if (typeNumber) {
         return (NVActivityIndicatorType)[typeNumber integerValue];
@@ -117,3 +117,55 @@ Class<RCTComponentViewProtocol> LoaderKitViewCls(void)
 }
 
 @end
+
+#else
+
+@implementation LoaderKitViewManager
+
+RCT_EXPORT_MODULE(LoaderKitView)
+
+- (UIView *)view
+{
+  return [[NVActivityIndicatorView alloc] init];
+}
+
+- (NVActivityIndicatorType)getIndicatorTypeFromName:(NSString *)name
+{
+    if (!name) return NVActivityIndicatorTypeBallPulse;
+    
+    NSNumber *typeNumber = nameToTypeMap[name];
+    if (typeNumber) {
+        return (NVActivityIndicatorType)[typeNumber integerValue];
+    }
+    
+    return NVActivityIndicatorTypeBallPulse;
+}
+
+RCT_CUSTOM_VIEW_PROPERTY(name, NSString, NVActivityIndicatorView)
+{
+    NSString *indicatorName = [RCTConvert NSString:json];
+    if (indicatorName) {
+        NVActivityIndicatorType type = [self getIndicatorTypeFromName:indicatorName];
+        view.type = type;
+    }
+}
+
+RCT_CUSTOM_VIEW_PROPERTY(color, UIColor, NVActivityIndicatorView)
+{
+    UIColor *color = [RCTConvert UIColor:json];
+    if (color) {
+        view.color = color;
+    }
+}
+
+RCT_CUSTOM_VIEW_PROPERTY(animationSpeedMultiplier, CGFloat, NVActivityIndicatorView)
+{
+    CGFloat speedMultiplier = [RCTConvert CGFloat:json];
+    view.animationSpeedMultiplier = speedMultiplier;
+}
+
+@end
+
+#endif
+
+

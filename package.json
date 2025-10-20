@@ -1,6 +1,6 @@
 {
   "name": "react-native-loader-kit",
-  "version": "3.0.0",
+  "version": "4.0.0",
   "description": "🎯 Beautiful native loading indicators for React Native with 30+ animations, TypeScript support, and speed control",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",

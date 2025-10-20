@@ -2,26 +2,13 @@ package com.loaderkit
 
 import android.graphics.Color
 import com.facebook.react.module.annotations.ReactModule
-import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
-import com.facebook.react.uimanager.ViewManagerDelegate
 import com.facebook.react.uimanager.annotations.ReactProp
-import com.facebook.react.viewmanagers.LoaderKitViewManagerInterface
-import com.facebook.react.viewmanagers.LoaderKitViewManagerDelegate
+import com.testrncompatview.LoaderKitViewManagerSpec
 import com.wang.avi.AVLoadingIndicatorView;
 
 @ReactModule(name = LoaderKitViewManager.NAME)
-class LoaderKitViewManager : SimpleViewManager<AVLoadingIndicatorView>(),
-  LoaderKitViewManagerInterface<AVLoadingIndicatorView> {
-  private val mDelegate: ViewManagerDelegate<AVLoadingIndicatorView>
-
-  init {
-    mDelegate = LoaderKitViewManagerDelegate(this)
-  }
-
-  override fun getDelegate(): ViewManagerDelegate<AVLoadingIndicatorView>? {
-    return mDelegate
-  }
+class LoaderKitViewManager : LoaderKitViewManagerSpec<AVLoadingIndicatorView>() {
 
   override fun getName(): String {
     return NAME
@@ -32,15 +19,15 @@ class LoaderKitViewManager : SimpleViewManager<AVLoadingIndicatorView>(),
   }
 
   @ReactProp(name = "name")
-  override fun setName(view: AVLoadingIndicatorView?, name: String?) {
-    name?.let {
+  override fun setName(view: AVLoadingIndicatorView?, value: String?) {
+    value?.let {
       view?.setIndicator("${it}Indicator")
     }
   }
 
   @ReactProp(name = "color", defaultInt = Color.WHITE)
-  override fun setColor(view: AVLoadingIndicatorView?, color: Int) {
-    view?.setIndicatorColor(color)
+  override fun setColor(view: AVLoadingIndicatorView?, value: Int) {
+    view?.setIndicatorColor(value)
   }
 
   @ReactProp(name = "animationSpeedMultiplier", defaultFloat = 1f)
