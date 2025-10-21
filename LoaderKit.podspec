@@ -13,10 +13,8 @@ Pod::Spec.new do |s|
   s.platforms    = { :ios => min_ios_version_supported }
   s.source       = { :git => "https://github.com/maitrungduc1410/react-native-loader-kit.git", :tag => "#{s.version}" }
 
-  s.source_files = "ios/**/*.{h,m,mm,cpp}"
+  s.source_files = "ios/**/*.{h,m,mm,swift}"
   s.private_header_files = "ios/**/*.h"
-
-  s.dependency "NVActivityIndicatorView-ObjC"
 
   install_modules_dependencies(s)
 end

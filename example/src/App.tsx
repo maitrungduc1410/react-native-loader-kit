@@ -34,18 +34,19 @@ const getDisplayName = (name: IndicatorName) => {
 export default function App() {
   const [speed, setSpeed] = useState(1.0);
   const indicators = getIndicators();
-  
+
   const spacing = 10;
   const columns = 4;
   const itemWidth = (screenWidth - spacing * (columns + 1)) / columns;
   const itemHeight = itemWidth + 45; // Extra height for label
-  
+
   const renderIndicator = (name: IndicatorName, index: number) => {
     const isIOSOnly = IOS_ONLY_INDICATORS.includes(name as any);
-    const backgroundColor = isIOSOnly && Platform.OS === 'android' 
-      ? 'rgba(255, 255, 255, 0.3)' 
-      : 'transparent';
-    
+    const backgroundColor =
+      isIOSOnly && Platform.OS === 'android'
+        ? 'rgba(255, 255, 255, 0.3)'
+        : 'transparent';
+
     return (
       <View
         key={name}
@@ -61,7 +62,7 @@ export default function App() {
         <View style={styles.indicatorWrapper}>
           <LoaderKitView
             name={name}
-            color="white"
+            color="blue"
             animationSpeedMultiplier={speed}
             style={styles.indicator}
           />
@@ -106,11 +107,12 @@ export default function App() {
         <View style={styles.grid}>
           {indicators.map((name, index) => renderIndicator(name, index))}
         </View>
-        
+
         {/* Platform Info */}
         <View style={styles.infoContainer}>
           <Text style={styles.infoText}>
-            Platform: {Platform.OS.charAt(0).toUpperCase() + Platform.OS.slice(1)}
+            Platform:{' '}
+            {Platform.OS.charAt(0).toUpperCase() + Platform.OS.slice(1)}
           </Text>
           <Text style={styles.infoText}>
             Available Indicators: {indicators.length}

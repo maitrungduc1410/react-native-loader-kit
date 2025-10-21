@@ -8,11 +8,10 @@ PODS:
   - hermes-engine (0.79.2):
     - hermes-engine/Pre-built (= 0.79.2)
   - hermes-engine/Pre-built (0.79.2)
-  - LoaderKit (3.0.0):
+  - LoaderKit (4.0.0):
     - DoubleConversion
     - glog
     - hermes-engine
-    - NVActivityIndicatorView-ObjC
     - RCT-Folly (= 2024.11.18.00)
     - RCTRequired
     - RCTTypeSafety
@@ -33,7 +32,6 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - NVActivityIndicatorView-ObjC (1.0.1)
   - RCT-Folly (2024.11.18.00):
     - boost
     - DoubleConversion
@@ -1760,7 +1758,6 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
-    - NVActivityIndicatorView-ObjC
     - SocketRocket
 
 EXTERNAL SOURCES:
@@ -1916,8 +1913,7 @@ SPEC CHECKSUMS:
   fmt: a40bb5bd0294ea969aaaba240a927bd33d878cdd
   glog: 5683914934d5b6e4240e497e0f4a3b42d1854183
   hermes-engine: 314be5250afa5692b57b4dd1705959e1973a8ebe
-  LoaderKit: 984fcf908338cee4137a65115a0f44df26e9754a
-  NVActivityIndicatorView-ObjC: a2394f53d84c32f71823743a2030e0378d40332f
+  LoaderKit: a1a6f4a99814e4bf7b1b5792272551d24e04a22f
   RCT-Folly: 36fe2295e44b10d831836cc0d1daec5f8abcf809
   RCTDeprecation: 83ffb90c23ee5cea353bd32008a7bca100908f8c
   RCTRequired: eb7c0aba998009f47a540bec9e9d69a54f68136e

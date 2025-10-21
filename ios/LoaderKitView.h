@@ -18,7 +18,4 @@ NS_ASSUME_NONNULL_END
 
 #import "React/RCTViewManager.h"
 
-@interface LoaderKitViewManager : RCTViewManager
-@end
-
 #endif
