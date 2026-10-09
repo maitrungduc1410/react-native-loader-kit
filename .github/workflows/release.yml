@@ -1,7 +1,8 @@
 name: Release
 
-# Runs on every push to master (current major) and v4 (maintenance of 4.x), after CI passed.
-# Every step can be rerun safely:
+# Runs on every push to master (current major) and v4 (maintenance of 4.x). It neither runs CI
+# again nor waits for it: the same push runs ci.yml at the same time. Before publishing, it runs the
+# Linux checks of CI (lint, typecheck, vendored sources, unit tests). Every step can be rerun safely:
 #   1. Pending changesets: open or update the "chore: release vX.Y.Z" pull request (branch
 #      release/vX.Y.Z) against the pushed branch, which bumps the version and writes CHANGELOG.md.
 #   2. A version that is not on npm yet (for example after merging that pull request): publish
@@ -21,20 +22,12 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  ci:
-    name: CI
-    uses: ./.github/workflows/ci.yml
-    permissions:
-      contents: read
-
   release:
     name: Release
-    needs: ci
     # A manual run from another branch must not publish anything.
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/v4'
     runs-on: ubuntu-latest
     permissions:
-      actions: write
       contents: write
       pull-requests: write
       id-token: write
@@ -76,7 +69,6 @@ jobs:
           git add package.json CHANGELOG.md .changeset
           git commit -m "$title"
           git push --force origin "$branch"
-          gh workflow run ci.yml --ref "$branch"
 
           {
             echo "Merging this pull request publishes \`react-native-loader-kit@$version\` to npm and creates the GitHub release \`v$version\`."
@@ -137,10 +129,14 @@ jobs:
           echo "dist-tag=$tag" >> "$GITHUB_OUTPUT"
           echo "Publishing to the npm dist-tag $tag"
 
+      # The cheap Linux part of CI, so a red lint or test run cannot be published.
       - name: Build and check the package
         if: steps.plan.outputs.publish == 'true'
         run: |
+          yarn lint
           yarn typecheck
+          yarn sync-core --check
+          yarn test --maxWorkers=2
           yarn prepare
 
       # `prepare` already ran above, so lifecycle scripts are skipped to avoid a second build.
