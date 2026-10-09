@@ -56,7 +56,7 @@
   "bugs": {
     "url": "https://github.com/maitrungduc1410/react-native-loader-kit/issues"
   },
-  "homepage": "https://github.com/maitrungduc1410/react-native-loader-kit#readme",
+  "homepage": "https://maitrungduc1410.github.io/loader-kit/platforms/react-native",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
   },
