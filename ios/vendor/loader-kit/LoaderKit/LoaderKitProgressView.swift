@@ -19,7 +19,7 @@ import LoaderKitCore
 /// example), and framed by border, whose intrinsic size follows it. Bad numbers never throw: they
 /// take the defaults.
 public final class LoaderKitProgressView: LoaderKitPlatformView {
-    private var animator = ProgressAnimator()
+    private var progressAnimator = ProgressAnimator()
     private var lastFrame: CFTimeInterval?
     #if canImport(UIKit)
     private var displayLink: CADisplayLink?
@@ -53,7 +53,7 @@ public final class LoaderKitProgressView: LoaderKitPlatformView {
         didSet {
             if let value, value.isNaN { self.value = nil }
             guard value != oldValue else { return }
-            animator.setValue(value, now: CACurrentMediaTime(), smooth: smooth && !reducesMotion)
+            progressAnimator.setValue(value, now: CACurrentMediaTime(), smooth: smooth && !reducesMotion)
             updateAccessibility()
             changed()
         }
@@ -64,7 +64,7 @@ public final class LoaderKitProgressView: LoaderKitPlatformView {
         didSet {
             if let buffer, buffer.isNaN { self.buffer = nil }
             guard buffer != oldValue else { return }
-            animator.setBuffer(buffer, now: CACurrentMediaTime(), smooth: smooth && !reducesMotion)
+            progressAnimator.setBuffer(buffer, now: CACurrentMediaTime(), smooth: smooth && !reducesMotion)
             changed()
         }
     }
@@ -206,7 +206,7 @@ public final class LoaderKitProgressView: LoaderKitPlatformView {
         self.init(frame: .zero)
         options = ProgressOptions(type: type, variant: variant)
         self.value = value.flatMap { $0.isNaN ? nil : $0 }
-        animator = ProgressAnimator(value: self.value)
+        progressAnimator = ProgressAnimator(value: self.value)
     }
 
     deinit {
@@ -227,7 +227,7 @@ public final class LoaderKitProgressView: LoaderKitPlatformView {
         trackColor = nil
         labelColor = nil
         respectsReduceMotion = true
-        animator = ProgressAnimator()
+        progressAnimator = ProgressAnimator()
         changed()
     }
 
@@ -246,14 +246,6 @@ public final class LoaderKitProgressView: LoaderKitPlatformView {
             let ratio = (p.intrinsicSize.height ?? 1) / (p.intrinsicSize.width ?? 1)
             return CGSize(width: size, height: size * CGFloat(ratio))
         }
-    }
-
-    private static var noIntrinsicMetric: CGFloat {
-        #if canImport(UIKit)
-        UIView.noIntrinsicMetric
-        #else
-        NSView.noIntrinsicMetric
-        #endif
     }
 
     private func commonInit() {
@@ -314,8 +306,8 @@ public final class LoaderKitProgressView: LoaderKitPlatformView {
 
     private var moving: Bool {
         let speed = resolvedOptions.speed
-        return animator.moving || (animator.indeterminate && speed > 0 && speed.isFinite)
-            || (resolvedOptions.hasAmbientMotion(animator.state) && !reducesMotion)
+        return progressAnimator.moving || (progressAnimator.indeterminate && speed > 0 && speed.isFinite)
+            || (resolvedOptions.hasAmbientMotion(progressAnimator.state) && !reducesMotion)
     }
 
     private func changed() {
@@ -354,7 +346,7 @@ public final class LoaderKitProgressView: LoaderKitPlatformView {
         let now = CACurrentMediaTime()
         if let lastFrame {
             // A long pause (the app in the background) should not fast-forward the animation.
-            animator.step(min(0.1, now - lastFrame), speed: resolvedOptions.speed, reduceMotion: reducesMotion)
+            progressAnimator.step(min(0.1, now - lastFrame), speed: resolvedOptions.speed, reduceMotion: reducesMotion)
         }
         lastFrame = now
         markNeedsDisplay()
@@ -489,7 +481,7 @@ public final class LoaderKitProgressView: LoaderKitPlatformView {
     #endif
 
     private func render(_ renderer: ProgressRenderer, in context: CGContext) {
-        let drawing = ProgressGeometry.commands(resolvedOptions, animator.state, width: Double(bounds.width), height: Double(bounds.height))
+        let drawing = ProgressGeometry.commands(resolvedOptions, progressAnimator.state, width: Double(bounds.width), height: Double(bounds.height))
         renderer.draw(drawing, in: context, origin: bounds.origin)
     }
 
