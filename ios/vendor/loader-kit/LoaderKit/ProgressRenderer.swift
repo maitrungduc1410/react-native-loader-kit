@@ -13,6 +13,9 @@ import LoaderKitCore
 struct ProgressRenderer {
     /// Opacity of the track when no track color is set.
     static let defaultTrackAlpha: CGFloat = 0.24
+    /// Wedges per turn that stand in for a conic gradient, which Core Graphics only has from iOS 17
+    /// and macOS 14.
+    static let conicSteps = 180
 
     var color: CGColor
     /// `nil` draws the track in `color` at 24% opacity.
@@ -85,9 +88,61 @@ struct ProgressRenderer {
                 options: [.drawsAfterEndLocation]
             )
         case let .conic(cx, cy, start, stops):
-            guard let gradient = gradient(stops) else { return }
-            context.drawConicGradient(gradient, center: CGPoint(x: cx, y: cy), angle: CGFloat(start))
+            fillConic(cx: cx, cy: cy, start: start, stops: stops, in: context)
         }
+    }
+
+    /// Wedges from the center past the corners of the clip, each in the color of its middle.
+    private func fillConic(cx: Double, cy: Double, start: Double, stops: [ProgressColorStop], in context: CGContext) {
+        let bounds = context.boundingBoxOfClipPath
+        guard !bounds.isNull, !bounds.isEmpty else { return }
+        var reach = 0.0
+        for x in [bounds.minX, bounds.maxX] {
+            for y in [bounds.minY, bounds.maxY] {
+                reach = max(reach, hypot(Double(x) - cx, Double(y) - cy))
+            }
+        }
+        let r = reach + 1
+        let step = 2 * Double.pi / Double(Self.conicSteps)
+        let colors = stops.map { srgbComponents(role($0.color, $0.alpha)) }
+        context.saveGState()
+        // Aliased wedges meet without seams or double-blended edges; the clip keeps the outline smooth.
+        context.setShouldAntialias(false)
+        for i in 0..<Self.conicSteps {
+            let from = start + Double(i) * step
+            let to = start + Double(i + 1) * step
+            context.move(to: CGPoint(x: cx, y: cy))
+            context.addLine(to: CGPoint(x: cx + r * cos(from), y: cy + r * sin(from)))
+            context.addLine(to: CGPoint(x: cx + r * cos(to), y: cy + r * sin(to)))
+            context.closePath()
+            context.setFillColor(conicColor(stops, colors, (Double(i) + 0.5) / Double(Self.conicSteps)))
+            context.fillPath()
+        }
+        context.restoreGState()
+    }
+
+    /// The color at `t` of a turn, mixed in sRGB like the other platforms.
+    private func conicColor(_ stops: [ProgressColorStop], _ colors: [[CGFloat]], _ t: Double) -> CGColor {
+        guard let first = stops.first else { return CGColor(srgbRed: 0, green: 0, blue: 0, alpha: 0) }
+        var mixed = colors[0]
+        if t > first.offset {
+            mixed = colors[colors.count - 1]
+            for i in 1..<stops.count where t <= stops[i].offset {
+                let span = stops[i].offset - stops[i - 1].offset
+                let u = CGFloat(span > 0 ? (t - stops[i - 1].offset) / span : 1)
+                mixed = zip(colors[i - 1], colors[i]).map { $0 + ($1 - $0) * u }
+                break
+            }
+        }
+        return CGColor(srgbRed: mixed[0], green: mixed[1], blue: mixed[2], alpha: mixed[3])
+    }
+
+    private func srgbComponents(_ color: CGColor) -> [CGFloat] {
+        guard let space = CGColorSpace(name: CGColorSpace.sRGB),
+              let components = color.converted(to: space, intent: .defaultIntent, options: nil)?.components,
+              components.count == 4
+        else { return [0, 0, 0, 0] }
+        return components
     }
 
     private func fill(_ path: CGPath, _ paint: ProgressPaint, in context: CGContext) {
