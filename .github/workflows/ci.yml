@@ -120,9 +120,10 @@ jobs:
           yarn turbo run build:android --cache-dir="${{ env.TURBO_CACHE_DIR }}"
 
   build-ios:
-    runs-on: macos-latest
+    # macos-latest moves to new Xcode majors and drops the old ones; macos-15 keeps Xcode 16.
+    runs-on: macos-15
     env:
-      XCODE_VERSION: 16.2
+      XCODE_VERSION: '16.4'
       TURBO_CACHE_DIR: .turbo/ios
     steps:
       - name: Checkout
@@ -154,7 +155,7 @@ jobs:
           xcode-version: ${{ env.XCODE_VERSION }}
 
       - name: Install cocoapods
-        if: env.turbo_cache_hit != 1 && steps.cocoapods-cache.outputs.cache-hit != 'true'
+        if: env.turbo_cache_hit != 1
         run: |
           cd example
           bundle install
