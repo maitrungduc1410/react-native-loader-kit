@@ -9,6 +9,11 @@ runs:
       with:
         node-version-file: .nvmrc
 
+    # The runner's global Yarn is 1.x; Corepack provides the Yarn pinned in `packageManager`.
+    - name: Enable Corepack
+      run: corepack enable
+      shell: bash
+
     - name: Restore dependencies
       id: yarn-cache
       uses: actions/cache/restore@v4

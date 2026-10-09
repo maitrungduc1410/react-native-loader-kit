@@ -2,13 +2,23 @@ name: CI
 on:
   push:
     branches:
-      - main
+      - master
+      - v4
   pull_request:
     branches:
-      - main
+      - master
+      - v4
   merge_group:
     types:
       - checks_requested
+  # The release workflow runs CI first and publishes only when every job passed.
+  workflow_call:
+  # Pushes made with GITHUB_TOKEN do not trigger pull_request runs, so the release workflow
+  # dispatches CI on the release branch to give its pull request checks.
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   lint:
@@ -25,6 +35,9 @@ jobs:
 
       - name: Typecheck files
         run: yarn typecheck
+
+      - name: Vendored iOS sources match the pinned LoaderKit release
+        run: yarn sync-core --check
 
   test:
     runs-on: ubuntu-latest

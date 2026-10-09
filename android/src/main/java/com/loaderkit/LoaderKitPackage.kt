@@ -10,6 +10,7 @@ class LoaderKitViewPackage : ReactPackage {
   override fun createViewManagers(reactContext: ReactApplicationContext): List<ViewManager<*, *>> {
     val viewManagers: MutableList<ViewManager<*, *>> = ArrayList()
     viewManagers.add(LoaderKitViewManager())
+    viewManagers.add(LoaderKitProgressViewManager())
     return viewManagers
   }
 

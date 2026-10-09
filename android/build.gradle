@@ -1,3 +1,5 @@
+import groovy.json.JsonSlurper
+
 buildscript {
   ext.getExtOrDefault = {name ->
     return rootProject.ext.has(name) ? rootProject.ext.get(name) : project.properties['LoaderKit_' + name]
@@ -15,22 +17,34 @@ buildscript {
   }
 }
 
+// React Native 0.82 and newer may not define newArchEnabled at all; only an explicit false is rejected.
+if (rootProject.findProperty("newArchEnabled")?.toString() == "false") {
+  throw new GradleException(
+    "react-native-loader-kit 5 requires the New Architecture. " +
+      "For the old architecture, install react-native-loader-kit@v4-lts."
+  )
+}
 
 apply plugin: "com.android.library"
 apply plugin: "kotlin-android"
-
-if (isNewArchitectureEnabled()) {
-  apply plugin: "com.facebook.react"
-}
+apply plugin: "com.facebook.react"
 
 def getExtOrIntegerDefault(name) {
   return rootProject.ext.has(name) ? rootProject.ext.get(name) : (project.properties["LoaderKit_" + name]).toInteger()
 }
 
-def isNewArchitectureEnabled() {
-  return rootProject.hasProperty("newArchEnabled") && rootProject.getProperty("newArchEnabled") == "true"
-}
-
+// The core engine version is the one the JavaScript package depends on, so JS, iOS and Android
+// always render the same spec revision.
+def loaderKitCoreVersion = {
+  def pkg = new JsonSlurper().parse(file("../package.json"))
+  def version = pkg.dependencies?.get("@loader-kit/spec")
+  if (!(version ==~ /\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?/)) {
+    throw new GradleException(
+      "react-native-loader-kit: package.json must depend on an exact @loader-kit/spec version, found '${version}'."
+    )
+  }
+  return version
+}()
 
 android {
   namespace "com.loaderkit"
@@ -40,11 +54,6 @@ android {
   defaultConfig {
     minSdkVersion getExtOrIntegerDefault("minSdkVersion")
     targetSdkVersion getExtOrIntegerDefault("targetSdkVersion")
-    buildConfigField "boolean", "IS_NEW_ARCHITECTURE_ENABLED", isNewArchitectureEnabled().toString()
-  }
-
-  buildFeatures {
-    buildConfig true
   }
 
   buildTypes {
@@ -53,29 +62,18 @@ android {
     }
   }
 
-  lintOptions {
+  lint {
     disable "GradleCompatible"
   }
 
   compileOptions {
-    sourceCompatibility JavaVersion.VERSION_1_8
-    targetCompatibility JavaVersion.VERSION_1_8
+    sourceCompatibility JavaVersion.VERSION_17
+    targetCompatibility JavaVersion.VERSION_17
   }
+}
 
-  sourceSets {
-    main {
-      if (isNewArchitectureEnabled()) {
-        java.srcDirs += [
-          "src/newarch",
-          // Codegen specs
-          "generated/java",
-          "generated/jni"
-        ]
-      } else {
-        java.srcDirs += "src/oldarch"
-      }
-    }
-  }
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+  compilerOptions.jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
 }
 
 repositories {
@@ -83,18 +81,13 @@ repositories {
   google()
 }
 
-def kotlin_version = getExtOrDefault("kotlinVersion")
-
 dependencies {
   implementation "com.facebook.react:react-android"
-  implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-  implementation "io.github.maitrungduc1410:AVLoadingIndicatorView:2.3.0"
+  implementation "io.github.maitrungduc1410:loaderkit-core:${loaderKitCoreVersion}"
 }
 
-if (isNewArchitectureEnabled()) {
-  react {
-    jsRootDir = file("../src/")
-    libraryName = "LoaderKitView"
-    codegenJavaPackageName = "com.loaderkit"
-  }
+react {
+  jsRootDir = file("../src/")
+  libraryName = "LoaderKitView"
+  codegenJavaPackageName = "com.loaderkit"
 }

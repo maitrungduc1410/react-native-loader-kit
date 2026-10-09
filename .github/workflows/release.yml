@@ -1,0 +1,166 @@
+name: Release
+
+# Runs on every push to master (current major) and v4 (maintenance of 4.x), after CI passed.
+# Every step can be rerun safely:
+#   1. Pending changesets: open or update the "chore: release vX.Y.Z" pull request (branch
+#      release/vX.Y.Z) against the pushed branch, which bumps the version and writes CHANGELOG.md.
+#   2. A version that is not on npm yet (for example after merging that pull request): publish
+#      it with trusted publishing (OIDC), so no npm token is stored in the repository.
+#      master publishes to `latest`, v4 to `v4-lts`, prereleases (X.Y.Z-rc.N) to `next`.
+#   3. Create the GitHub release vX.Y.Z from its CHANGELOG.md section. Only releases from master
+#      can become the "Latest" release on GitHub.
+on:
+  push:
+    branches: [master, v4]
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    name: CI
+    uses: ./.github/workflows/ci.yml
+    permissions:
+      contents: read
+
+  release:
+    name: Release
+    needs: ci
+    # A manual run from another branch must not publish anything.
+    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/v4'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: write
+      pull-requests: write
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup
+        uses: ./.github/actions/setup
+
+      # Trusted publishing needs npm 11.5.1 or newer.
+      - run: npm install -g npm@11
+
+      # Not changesets/action: it always uses the branch changeset-release/<base> and a fixed
+      # title, and the version is only known after `changeset version` has run.
+      - id: changesets
+        name: Open the release pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASE: ${{ github.ref_name }}
+        run: |
+          # In prerelease mode consumed changesets move to .changeset/pre/, so leaving that mode
+          # (`changeset pre exit`) is pending work too.
+          exiting_pre="$(node -p "try { require('./.changeset/pre.json').mode === 'exit' } catch { false }")"
+          if [ -z "$(find .changeset -maxdepth 1 -name '*.md' ! -name README.md)" ] && [ "$exiting_pre" != true ]; then
+            echo "has-changesets=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "has-changesets=true" >> "$GITHUB_OUTPUT"
+
+          yarn version-packages
+          version="$(node -p "require('./package.json').version")"
+          branch="release/v$version"
+          title="chore: release v$version"
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git switch -C "$branch"
+          git add package.json CHANGELOG.md .changeset
+          git commit -m "$title"
+          git push --force origin "$branch"
+          gh workflow run ci.yml --ref "$branch"
+
+          {
+            echo "Merging this pull request publishes \`react-native-loader-kit@$version\` to npm and creates the GitHub release \`v$version\`."
+            echo "It is regenerated whenever more changesets land on \`$BASE\`; edit the changesets there rather than this branch."
+            echo
+            node scripts/release-notes.mjs "$version"
+          } > "$RUNNER_TEMP/body.md"
+
+          pr="$(gh pr list --base "$BASE" --head "$branch" --state open --json number --jq '.[0].number // empty')"
+          if [ -n "$pr" ]; then
+            gh pr edit "$pr" --title "$title" --body-file "$RUNNER_TEMP/body.md"
+          else
+            gh pr create --base "$BASE" --head "$branch" --title "$title" --body-file "$RUNNER_TEMP/body.md"
+            pr="$(gh pr list --base "$BASE" --head "$branch" --state open --json number --jq '.[0].number')"
+          fi
+
+          # A bigger bump (say a minor changeset on top of patches) moves the release to a new branch.
+          gh pr list --base "$BASE" --state open --limit 100 --json number,headRefName \
+            --jq ".[] | select(.headRefName | startswith(\"release/v\")) | select(.headRefName != \"$branch\") | .number" |
+            while read -r old; do
+              gh pr close "$old" --delete-branch --comment "Superseded by #$pr."
+            done
+
+      - id: plan
+        name: Decide what to release
+        if: steps.changesets.outputs.has-changesets == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          name="$(node -p "require('./package.json').name")"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if npm view "$name@$version" version > /dev/null 2>&1; then
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "$name@$version is already on npm"
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          fi
+          if gh release view "v$version" > /dev/null 2>&1; then
+            echo "release=false" >> "$GITHUB_OUTPUT"
+            echo "GitHub release v$version already exists"
+          else
+            echo "release=true" >> "$GITHUB_OUTPUT"
+          fi
+          case "$version" in
+            *-*) prerelease=true ;;
+            *) prerelease=false ;;
+          esac
+          echo "prerelease=$prerelease" >> "$GITHUB_OUTPUT"
+          if [ "$prerelease" = "true" ]; then
+            tag=next
+          elif [ "$BRANCH" = "v4" ]; then
+            tag=v4-lts
+          else
+            tag=latest
+          fi
+          echo "dist-tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "Publishing to the npm dist-tag $tag"
+
+      - name: Build and check the package
+        if: steps.plan.outputs.publish == 'true'
+        run: |
+          yarn typecheck
+          yarn prepare
+
+      # `prepare` already ran above, so lifecycle scripts are skipped to avoid a second build.
+      - name: Publish to npm
+        if: steps.plan.outputs.publish == 'true'
+        run: >-
+          npm publish --access public --provenance --ignore-scripts
+          --tag ${{ steps.plan.outputs.dist-tag }}
+
+      - name: Create the GitHub release
+        if: steps.plan.outputs.release == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.plan.outputs.version }}
+          PRERELEASE: ${{ steps.plan.outputs.prerelease }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          node scripts/release-notes.mjs "$VERSION" > "$RUNNER_TEMP/notes.md"
+          flags=()
+          [ "$PRERELEASE" = "true" ] && flags+=(--prerelease)
+          [ "$BRANCH" != "master" ] && flags+=(--latest=false)
+          gh release create "v$VERSION" --target "$GITHUB_SHA" --title "v$VERSION" \
+            --notes-file "$RUNNER_TEMP/notes.md" "${flags[@]}"

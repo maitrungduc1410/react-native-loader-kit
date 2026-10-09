@@ -1,39 +1,45 @@
-import React from 'react';
-import { processColor } from 'react-native';
-import type { ColorValue, ViewProps } from 'react-native';
+import { useMemo } from 'react';
 import LoaderKitViewNativeComponent from './LoaderKitViewNativeComponent';
-import type { IndicatorName } from './types';
+import { serializeSpec, toNativeProps } from './nativeProps';
+import type { LoaderKitViewProps } from './nativeProps';
 
-interface LoaderKitViewProps extends ViewProps {
-  name: IndicatorName;
-  color?: ColorValue;
-  animationSpeedMultiplier?: number; // Default is 1.0
+function LoaderKitView(props: LoaderKitViewProps) {
+  const { spec } = props;
+  const specJson = useMemo(() => serializeSpec(spec), [spec]);
+  return <LoaderKitViewNativeComponent {...toNativeProps(props, specJson)} />;
 }
-
-const LoaderKitView: React.FC<LoaderKitViewProps> = (props) => {
-  return (
-    <LoaderKitViewNativeComponent
-      {...props}
-      color={processColor(props.color) as number}
-    />
-  );
-};
 
 export default LoaderKitView;
 export { LoaderKitView };
-export type { LoaderKitViewProps };
-
-// Export types and utilities for type-safe usage
+export type { LoaderKitViewProps, ReduceMotion } from './nativeProps';
+export { LoaderKitProgress } from './LoaderKitProgress';
 export type {
-  IndicatorName,
-  CommonIndicatorName,
-  IOSOnlyIndicatorName,
-} from './types';
+  LoaderKitProgressProps,
+  ProgressReduceMotion,
+} from './progressProps';
 
 export {
-  COMMON_INDICATORS,
-  IOS_ONLY_INDICATORS,
-  ALL_INDICATORS,
-  isIndicatorAvailableOnPlatform,
-  getAvailableIndicators,
-} from './types';
+  BUILTIN_INDICATORS,
+  BUILTIN_INDICATOR_NAMES,
+  InvalidIndicatorError,
+  PROGRESS_TYPES,
+  defineIndicator,
+  param,
+  progressVariants,
+  validate,
+} from '@loader-kit/spec';
+export type {
+  BuiltinIndicatorName,
+  Easing,
+  GroupTrack,
+  IndicatorDefinition,
+  IndicatorSpec,
+  Layout,
+  Part,
+  ProgressOptions,
+  ProgressStrokeCap,
+  ProgressType,
+  ProgressVariant,
+  Shape,
+  Track,
+} from '@loader-kit/spec';
