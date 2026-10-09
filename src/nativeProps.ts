@@ -1,5 +1,8 @@
-import { validate } from '@loader-kit/spec';
-import type { BuiltinIndicatorName, IndicatorSpec } from '@loader-kit/spec';
+import { validate } from '@loader-kit/spec/lite';
+import type {
+  BuiltinIndicatorName,
+  IndicatorSpec,
+} from '@loader-kit/spec/lite';
 import type { ColorValue, ViewProps } from 'react-native';
 import type { NativeProps } from './LoaderKitViewNativeComponent';
 

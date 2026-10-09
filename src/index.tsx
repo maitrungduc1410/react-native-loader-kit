@@ -19,7 +19,6 @@ export type {
 } from './progressProps';
 
 export {
-  BUILTIN_INDICATORS,
   BUILTIN_INDICATOR_NAMES,
   InvalidIndicatorError,
   PROGRESS_TYPES,
@@ -27,7 +26,7 @@ export {
   param,
   progressVariants,
   validate,
-} from '@loader-kit/spec';
+} from '@loader-kit/spec/lite';
 export type {
   BuiltinIndicatorName,
   Easing,
@@ -42,4 +41,4 @@ export type {
   ProgressVariant,
   Shape,
   Track,
-} from '@loader-kit/spec';
+} from '@loader-kit/spec/lite';

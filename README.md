@@ -22,21 +22,21 @@
   <a href="https://maitrungduc1410.github.io/loader-kit/guide/indicators">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="https://maitrungduc1410.github.io/loader-kit/readme/indicators-dark.gif">
-      <img alt="The 50 built-in indicators, animating" src="https://maitrungduc1410.github.io/loader-kit/readme/indicators-light.gif" width="100%">
+      <img alt="The 50 built-in indicators, then the 50 progress designs, animating" src="https://maitrungduc1410.github.io/loader-kit/readme/indicators-light.gif" width="100%">
     </picture>
   </a>
 </p>
 
 <p align="center">
-  All 50 built-in indicators, the same on Android and iOS. <a href="https://maitrungduc1410.github.io/loader-kit/guide/indicators">Open the gallery</a> to try them and copy the React Native code.
+  The 50 built-in indicators and the 50 progress designs, the same on Android and iOS. Try them in the <a href="https://maitrungduc1410.github.io/loader-kit/guide/indicators">indicator gallery</a> and the <a href="https://maitrungduc1410.github.io/loader-kit/guide/progress">progress gallery</a>, and copy the React Native code.
 </p>
 
 Native loading indicators for React Native. Every indicator is a small JSON spec rendered by
 [LoaderKit](https://github.com/maitrungduc1410/loader-kit), the same engine on iOS and Android,
 so an indicator looks and moves the same on both platforms. You can tweak the built-in
 indicators with params, write your own (experimental), and control playback (speed, pause, a
-frozen frame, reduced motion). `LoaderKitProgress` shows the progress of a task in 9 types,
-from linear and circular bars to gauges, liquid and batteries.
+frozen frame, reduced motion). `LoaderKitProgress` shows the progress of a task in 50 designs
+across 10 types, from linear and circular bars to gauges, liquid, batteries and an hourglass.
 
 **Documentation: [maitrungduc1410.github.io/loader-kit/platforms/react-native](https://maitrungduc1410.github.io/loader-kit/platforms/react-native)**
 
@@ -88,7 +88,7 @@ The [React Native page](https://maitrungduc1410.github.io/loader-kit/platforms/r
 
 - [Built-in indicators](https://maitrungduc1410.github.io/loader-kit/guide/indicators): the 50 names and their params, with a live gallery
   that copies React Native code.
-- [Progress indicators](https://maitrungduc1410.github.io/loader-kit/guide/progress): the 9 types and 30 designs.
+- [Progress indicators](https://maitrungduc1410.github.io/loader-kit/guide/progress): the 10 types and 50 designs.
 - [Customizing](https://maitrungduc1410.github.io/loader-kit/guide/customizing) and [Playback](https://maitrungduc1410.github.io/loader-kit/guide/playback): colors, size,
   speed, stopping and reduced motion.
 - [Custom indicators](https://maitrungduc1410.github.io/loader-kit/spec/): the spec format (experimental).

@@ -2,22 +2,28 @@ import Foundation
 
 /// The shape of a `LoaderKitProgress`.
 public enum ProgressType: String, CaseIterable, Hashable, Sendable {
-    case linear, circular, pie, gauge, liquid, border, bars, grid, battery
+    case linear, circular, pie, gauge, liquid, border, bars, grid, battery, hourglass
 
     /// The variants this type accepts; the first one is its default.
     public var variants: [ProgressVariant] {
         switch self {
-        case .linear: return [.flat, .wavy, .segmented, .striped, .shimmer, .glow, .dots, .steps]
-        case .circular: return [.flat, .wavy, .segmented, .gradient, .ticks, .dots]
-        case .gauge: return [.flat, .segmented]
-        default: return [.flat]
+        case .linear: return [.flat, .wavy, .segmented, .striped, .shimmer, .glow, .dots, .steps, .gradient, .center, .chevrons, .ticks]
+        case .circular: return [.flat, .wavy, .segmented, .gradient, .ticks, .dots, .glow, .split, .orbit, .dual]
+        case .pie: return [.flat, .segmented]
+        case .gauge: return [.flat, .segmented, .needle, .gradient, .dots]
+        case .liquid: return [.flat, .heart]
+        case .border: return [.flat, .glow, .segmented]
+        case .bars: return [.flat, .dots, .arcs]
+        case .grid: return [.flat, .dots]
+        case .battery: return [.flat, .segmented]
+        case .hourglass: return [.flat]
         }
     }
 }
 
 /// The style of a `LoaderKitProgress` within its type.
 public enum ProgressVariant: String, CaseIterable, Hashable, Sendable {
-    case flat, wavy, segmented, striped, shimmer, glow, dots, steps, gradient, ticks
+    case flat, wavy, segmented, striped, shimmer, glow, dots, steps, gradient, ticks, center, chevrons, split, orbit, dual, needle, arcs, heart
 }
 
 public enum ProgressStrokeCap: String, Hashable, Sendable {

@@ -63,7 +63,7 @@ The indicators are rendered by [LoaderKit](https://github.com/maitrungduc1410/lo
 - Android: `io.github.maitrungduc1410:loaderkit-core` from Maven Central, same version.
 - iOS: the Swift sources of the release tag, copied into `ios/vendor/loader-kit` by `yarn sync-core`. Never edit that folder by hand; CI checks that it matches the tag (`yarn sync-core --check`).
 
-To update LoaderKit, change the version in `package.json`, run `yarn` and `yarn sync-core`, and commit the result.
+To update LoaderKit, change the version in `package.json`, run `yarn` and `yarn sync-core`, and commit the result with a changeset that says what the new LoaderKit release brings to this library (new indicators or designs, fixes). Wait until the version is on npm and on Maven Central (which can take an hour after the LoaderKit release): the Android build and CI fetch it from there.
 
 To try unreleased LoaderKit changes, clone it next to this repository and point the example app at it:
 

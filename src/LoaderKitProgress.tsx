@@ -4,7 +4,7 @@ import { toProgressViews } from './progressProps';
 import type { LoaderKitProgressProps } from './progressProps';
 
 /**
- * A progress indicator: linear, circular, pie, gauge, liquid, border, bars, grid or battery.
+ * A progress indicator: linear, circular, pie, gauge, liquid, border, bars, grid, battery or hourglass.
  *
  * Linear fills the width it gets; border wraps its children plus its stroke; the other types are
  * `size` wide unless `style` sizes them. It is a `View` holding the drawing and, above it, the

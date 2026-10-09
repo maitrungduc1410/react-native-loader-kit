@@ -20,12 +20,15 @@ public struct ResolvedProgress: Hashable, Sendable {
 
     private static let thicknessDefaults: [String: Double] = [
         "linear:flat": 4, "linear:wavy": 4, "linear:segmented": 6, "linear:striped": 10, "linear:shimmer": 8,
-        "linear:glow": 3, "linear:dots": 4, "linear:steps": 3, "circular:gradient": 5, "circular:ticks": 3,
-        "gauge": 6, "liquid": 3, "border": 3, "battery": 3,
+        "linear:glow": 3, "linear:dots": 4, "linear:steps": 3, "linear:gradient": 6, "linear:chevrons": 3,
+        "linear:ticks": 2, "circular:gradient": 5, "circular:ticks": 3, "circular:orbit": 3, "circular:dual": 3,
+        "gauge": 6, "gauge:needle": 3, "liquid": 3, "border": 3, "bars:arcs": 4, "battery": 3, "hourglass": 3,
     ]
     private static let segmentDefaults: [String: Double] = [
-        "linear:segmented": 10, "linear:dots": 8, "linear:steps": 4, "circular:segmented": 12, "circular:ticks": 12,
-        "circular:dots": 10, "gauge:segmented": 10, "bars": 5, "grid": 5,
+        "linear:segmented": 10, "linear:dots": 8, "linear:steps": 4, "linear:chevrons": 12, "linear:ticks": 24,
+        "circular:segmented": 12, "circular:ticks": 12, "circular:dots": 10, "gauge:segmented": 10, "gauge:needle": 10,
+        "gauge:dots": 12, "pie:segmented": 8, "border:segmented": 20, "bars": 5, "bars:arcs": 4, "grid": 5,
+        "battery:segmented": 5,
     ]
 
     /// Applies the defaults: a variant the type does not have becomes its default, non-finite numbers
@@ -86,6 +89,8 @@ public struct ResolvedProgress: Hashable, Sendable {
         case .glow: height = t + 18
         case .dots: height = max(6, t * 2) * 2.3
         case .steps: height = 2 * max(7, t * 1.75) + 4
+        case .chevrons: height = 2 * max(3, t * 1.5) + t + 4
+        case .ticks: height = 2 * max(4, t * 2.5) + t + 4
         default: height = t + 4
         }
         if showLabel && !labelInside { height = max(height, 18) }
@@ -107,7 +112,8 @@ public struct ResolvedProgress: Hashable, Sendable {
 
     /// Padding between a `border` and its content, so the stroke does not cover it.
     public var contentInset: Double {
-        type == .border ? thickness + trackGap : 0
+        guard type == .border else { return 0 }
+        return thickness + trackGap + (variant == .glow ? borderGlow : 0)
     }
 }
 
@@ -168,6 +174,7 @@ public enum ProgressGeometry {
             case .pie: b.pie(size)
             case .gauge: b.gauge(size)
             case .liquid: b.liquid(size)
+            case .hourglass: b.hourglass(size)
             default: b.grid(size)
             }
             return ProgressDrawing(x: (width - size) / 2, y: (height - size) / 2, commands: b.out)
@@ -178,6 +185,10 @@ public enum ProgressGeometry {
 private let tau = Double.pi * 2
 private let top = -Double.pi / 2
 private let minWavySize: Double = 32
+/// Room the glow of border `glow` takes outside its stroke.
+private let borderGlow: Double = 4
+/// Half the height of the heart of `heartPoints`, for a half width of 1.
+private let heartHalfHeight = 14.5 / 16
 
 /// Shorter waves alias: the wave is sampled every 2 units of length.
 private let minWavelength: Double = 8
@@ -240,6 +251,20 @@ private func fade(_ cx: Double, _ cy: Double, _ r: Double, _ alpha: Double) -> P
         ProgressColorStop(offset: 0, color: .color, alpha: alpha),
         ProgressColorStop(offset: 1, color: .color, alpha: 0),
     ])
+}
+
+/// A heart centered at `cx`, `cy` and `half` wide on each side, clockwise from the notch at the top.
+private func heartPoints(_ cx: Double, _ cy: Double, _ half: Double) -> [Double] {
+    var points: [Double] = []
+    points.reserveCapacity(144)
+    for i in 0..<72 {
+        let a = Double(i) * tau / 72
+        let sa = sin(a)
+        let y = (-13 * cos(a) + 5 * cos(2 * a) + 2 * cos(3 * a) + cos(4 * a) - 2.5) / 16
+        points.append(cx + half * sa * sa * sa)
+        points.append(cy + half * y)
+    }
+    return points
 }
 
 private struct BorderPath {
@@ -341,6 +366,10 @@ private struct Builder {
         case .glow: linearGlow(barWidth, h)
         case .dots: linearDots(barWidth, h)
         case .steps: linearSteps(barWidth, h)
+        case .gradient: linearGradient(barWidth, h)
+        case .center: linearCenter(barWidth, h)
+        case .chevrons: linearChevrons(barWidth, h)
+        case .ticks: linearTicks(barWidth, h)
         default: linear(barWidth, h)
         }
         guard !s.indeterminate, p.showLabel, labelFits else { return }
@@ -584,6 +613,90 @@ private struct Builder {
         }
     }
 
+    mutating func linearGradient(_ w: Double, _ h: Double) {
+        let t = p.thickness
+        let cap = p.strokeCap
+        let r = cap == .round ? t / 2 : 0
+        let cy = h / 2
+        let x0 = r
+        let x1 = w - r
+        let len = x1 - x0
+        hLine(x0, x1, cy, t, cap, solid(.track))
+        func active(_ b: inout Builder, _ a: Double, _ c: Double) {
+            let from = x0 + a * len
+            let to = x0 + c * len
+            b.hLine(from, to, cy, t, cap, .linear(x0: from - r, y0: 0, x1: to + r, y1: 0, stops: [
+                ProgressColorStop(offset: 0, color: .color, alpha: 0.15),
+                ProgressColorStop(offset: 1, color: .color, alpha: 1),
+            ]))
+        }
+        if s.indeterminate {
+            for (a, c) in linearSegments(mod(s.indeterminateTime / 1.75, 1)) { active(&self, a, c) }
+            return
+        }
+        let v = clamp01(s.value)
+        if v > 0.0005 { active(&self, 0, v) }
+    }
+
+    mutating func linearCenter(_ w: Double, _ h: Double) {
+        let t = p.thickness
+        let cap = p.strokeCap
+        let r = cap == .round ? t / 2 : 0
+        let cy = h / 2
+        let x0 = r
+        let len = w - 2 * r
+        hLine(x0, x0 + len, cy, t, cap, solid(.track))
+        let half: Double
+        var alpha = 1.0
+        if s.indeterminate {
+            let u = mod(s.indeterminateTime / 1.6, 1)
+            half = emphasized(u) / 2
+            alpha = 1 - standard(clamp01((u - 0.55) / 0.45))
+        } else {
+            half = clamp01(s.value) / 2
+        }
+        if half > 0.00025 && alpha > 0.01 { hLine(x0 + (0.5 - half) * len, x0 + (0.5 + half) * len, cy, t, cap, solid(.color, alpha)) }
+    }
+
+    mutating func linearChevrons(_ w: Double, _ h: Double) {
+        let n = p.segments
+        let count = Double(n)
+        let t = p.thickness
+        let cy = h / 2
+        let half = max(3, t * 1.5)
+        let cell = (w - t) / count
+        let depth = min(cell * 0.5, half)
+        guard cell > 0 else { return }
+        let center = mod(s.indeterminateTime / 1.4, 1) * (count + 4) - 2
+        for i in 0..<n {
+            let x = t / 2 + Double(i) * cell + (cell - depth) / 2
+            let points = [x, cy - half, x + depth, cy, x, cy + half]
+            out.append(.polyline(points: points, closed: false, lineWidth: t, cap: p.strokeCap, paint: solid(.track)))
+            let k = s.indeterminate ? bump(Double(i) + 0.5 - center, 3) : clamp01(clamp01(s.value) * count - Double(i))
+            if k > 0.01 { out.append(.polyline(points: points, closed: false, lineWidth: t, cap: p.strokeCap, paint: solid(.color, k))) }
+        }
+    }
+
+    mutating func linearTicks(_ w: Double, _ h: Double) {
+        let n = p.segments
+        let count = Double(n)
+        let t = p.thickness
+        let cy = h / 2
+        let long = max(4, t * 2.5)
+        let short = long * 0.55
+        let center = mod(s.indeterminateTime / 1.6, 1) * (count + 6) - 3
+        for i in 0..<n {
+            let x = n == 1 ? w / 2 : t / 2 + Double(i) * (w - t) / (count - 1)
+            let reach = i % 4 == 0 ? long : short
+            func tick(_ paint: ProgressPaint) -> ProgressCommand {
+                .line(x0: x, y0: cy - reach, x1: x, y1: cy + reach, lineWidth: t, cap: p.strokeCap, paint: paint)
+            }
+            out.append(tick(solid(.track)))
+            let k = s.indeterminate ? bump(Double(i) - center, 3.5) : clamp01(clamp01(s.value) * count - Double(i))
+            if k > 0.01 { out.append(tick(solid(.color, k))) }
+        }
+    }
+
     // MARK: circular family
 
     mutating func circularAny(_ size: Double) {
@@ -592,6 +705,10 @@ private struct Builder {
         case .gradient: circularGradient(size)
         case .ticks: circularTicks(size)
         case .dots: circularDots(size)
+        case .glow: circularGlow(size)
+        case .split: circularSplit(size)
+        case .orbit: circularOrbit(size)
+        case .dual: circularDual(size)
         default: circular(size)
         }
         if p.showLabel && !s.indeterminate {
@@ -744,7 +861,114 @@ private struct Builder {
         }
     }
 
+    /// Arc of the active part of a ring: the indeterminate arc, or from the top to the value. Nil draws nothing.
+    func activeArc() -> (Double, Double)? {
+        if s.indeterminate {
+            let (a0, a1) = circularArc(s.indeterminateTime)
+            return (top + a0, top + a1)
+        }
+        let v = clamp01(s.value)
+        return v > 0.0005 ? (top, top + v * tau) : nil
+    }
+
+    mutating func circularGlow(_ size: Double) {
+        let t = p.thickness
+        let cap = p.strokeCap
+        let cx = size / 2
+        let cy = size / 2
+        let r = (size - t) / 2 - 4
+        guard r > 0 else { return }
+        arc(cx, cy, r, 0, tau, t, .butt, solid(.color, 0.14))
+        guard let (a0, a1) = activeArc() else { return }
+        arc(cx, cy, r, a0, a1, t + 8, cap, solid(.color, 0.12))
+        arc(cx, cy, r, a0, a1, t + 4, cap, solid(.color, 0.22))
+        arc(cx, cy, r, a0, a1, t, cap, solid(.color))
+        let hx = cx + r * cos(a1)
+        let hy = cy + r * sin(a1)
+        circle(hx, hy, t / 2 + 4, fade(hx, hy, t / 2 + 4, 0.5))
+    }
+
+    mutating func circularSplit(_ size: Double) {
+        let t = p.thickness
+        let cap = p.strokeCap
+        let cx = size / 2
+        let cy = size / 2
+        let r = (size - t) / 2
+        guard r > 0 else { return }
+        arc(cx, cy, r, 0, tau, t, .butt, solid(.track))
+        var tail = 0.0
+        let head: Double
+        if s.indeterminate {
+            let u = mod(s.indeterminateTime / 1.6, 1)
+            head = emphasized(clamp01(u / 0.6)) * Double.pi
+            tail = standard(clamp01((u - 0.3) / 0.7)) * Double.pi
+        } else {
+            head = clamp01(s.value) * Double.pi
+        }
+        guard head - tail > 0.0005 else { return }
+        arc(cx, cy, r, top + tail, top + head, t, cap, solid(.color))
+        arc(cx, cy, r, top - head, top - tail, t, cap, solid(.color))
+    }
+
+    mutating func circularOrbit(_ size: Double) {
+        let ring = max(1, p.thickness * 0.5)
+        let dot = max(2, p.thickness)
+        let cx = size / 2
+        let cy = size / 2
+        let r = size / 2 - dot * 1.6
+        guard r > 0 else { return }
+        arc(cx, cy, r, 0, tau, ring, .butt, solid(.track))
+        let head: Double
+        let tail: Double
+        var start = 0.0
+        if s.indeterminate {
+            head = top + mod(s.indeterminateTime / 1.2, 1) * tau
+            tail = head - 0.35 * tau
+        } else {
+            tail = top
+            head = top + clamp01(s.value) * tau
+            start = 0.15
+        }
+        if head - tail > 0.0005 {
+            arc(cx, cy, r, tail, head, ring * 1.6, .butt, .conic(cx: cx, cy: cy, start: tail, stops: [
+                ProgressColorStop(offset: 0, color: .color, alpha: start),
+                ProgressColorStop(offset: min(1, (head - tail) / tau), color: .color, alpha: 1),
+            ]))
+        }
+        let hx = cx + r * cos(head)
+        let hy = cy + r * sin(head)
+        circle(hx, hy, dot * 1.6, fade(hx, hy, dot * 1.6, 0.35))
+        circle(hx, hy, dot, solid(.color))
+    }
+
+    mutating func circularDual(_ size: Double) {
+        let t = p.thickness
+        let cap = p.strokeCap
+        let cx = size / 2
+        let cy = size / 2
+        let outer = (size - t) / 2
+        let inner = outer - t - max(2, p.trackGap * 0.75)
+        guard inner > 0 else { return }
+        arc(cx, cy, outer, 0, tau, t, .butt, solid(.track))
+        arc(cx, cy, inner, 0, tau, t, .butt, solid(.track))
+        if s.indeterminate {
+            let (a0, a1) = circularArc(s.indeterminateTime)
+            let (b0, b1) = circularArc(s.indeterminateTime * 1.3 + 0.7)
+            arc(cx, cy, outer, top + a0, top + a1, t, cap, solid(.color))
+            arc(cx, cy, inner, top - b1, top - b0, t, cap, solid(.color, 0.6))
+            return
+        }
+        let v = clamp01(s.value)
+        guard v > 0.0005 else { return }
+        arc(cx, cy, outer, top, top + v * tau, t, cap, solid(.color))
+        arc(cx, cy, inner, top - v * tau, top, t, cap, solid(.color, 0.6))
+    }
+
     mutating func pie(_ size: Double) {
+        if p.variant == .segmented {
+            pieSegmented(size)
+            return
+        }
         let t = max(1, p.thickness * 0.6)
         let cx = size / 2
         let cy = size / 2
@@ -765,6 +989,118 @@ private struct Builder {
         out.append(.sector(cx: cx, cy: cy, r: inner, start: start, end: end, paint: solid(.color)))
     }
 
+    mutating func pieSegmented(_ size: Double) {
+        let n = p.segments
+        let count = Double(n)
+        let cx = size / 2
+        let cy = size / 2
+        let r = size / 2
+        let gapAngle = n > 1 ? max(2, p.trackGap) / r : 0
+        let segment = tau / count - gapAngle
+        guard segment > 0.01 else { return }
+        let center = mod(s.indeterminateTime / 1.2, 1) * count
+        for i in 0..<n {
+            let a0 = top + Double(i) * (segment + gapAngle) + gapAngle / 2
+            out.append(.sector(cx: cx, cy: cy, r: r, start: a0, end: a0 + segment, paint: solid(.track)))
+            if s.indeterminate {
+                let m = mod(Double(i) + 0.5 - center, count)
+                let k = bump(min(m, count - m), count * 0.32)
+                if k > 0.01 { out.append(.sector(cx: cx, cy: cy, r: r, start: a0, end: a0 + segment, paint: solid(.color, k))) }
+                continue
+            }
+            let fill = clamp01(clamp01(s.value) * count - Double(i))
+            if fill > 0.001 { out.append(.sector(cx: cx, cy: cy, r: r, start: a0, end: a0 + segment * fill, paint: solid(.color))) }
+        }
+    }
+
+    /// Value the gauge shows: the value, or a needle sweeping back and forth.
+    func gaugeValue() -> Double {
+        s.indeterminate ? 0.5 - 0.5 * cos(s.indeterminateTime * Double.pi * 0.8) : clamp01(s.value)
+    }
+
+    mutating func gaugeNeedle(_ size: Double, _ start: Double) {
+        let t = p.thickness
+        let n = p.segments
+        let count = Double(n)
+        let cx = size / 2
+        let cy = size / 2
+        let r = (size - t) / 2
+        let sweep = p.sweepAngle
+        let v = gaugeValue()
+        let at = start + v * sweep
+        arc(cx, cy, r, start, start + sweep, t, p.strokeCap, solid(.track))
+        if v > 0.0005 { arc(cx, cy, r, start, at, t, p.strokeCap, solid(.color)) }
+        let outer = r - t / 2 - max(1.5, size * 0.03)
+        let inner = outer - max(2, size * 0.07)
+        let tickWidth = max(1, t * 0.4)
+        for i in 0...n {
+            let a = start + Double(i) * sweep / count
+            let ca = cos(a)
+            let sa = sin(a)
+            let lit = Double(i) / count <= v + 1e-9
+            out.append(.line(
+                x0: cx + inner * ca, y0: cy + inner * sa, x1: cx + outer * ca, y1: cy + outer * sa,
+                lineWidth: tickWidth, cap: .round, paint: solid(lit ? .color : .track)
+            ))
+        }
+        let length = inner - max(1.5, size * 0.04)
+        let base = max(1.5, size * 0.035)
+        let ca = cos(at)
+        let sa = sin(at)
+        out.append(.polygon(points: [cx + length * ca, cy + length * sa, cx - base * sa, cy + base * ca, cx + base * sa, cy - base * ca], paint: solid(.color)))
+        circle(cx, cy, max(2.5, size * 0.07), solid(.color))
+    }
+
+    mutating func gaugeGradient(_ size: Double, _ start: Double) {
+        let t = p.thickness
+        let cx = size / 2
+        let cy = size / 2
+        let r = (size - t) / 2
+        let sweep = p.sweepAngle
+        arc(cx, cy, r, start, start + sweep, t, p.strokeCap, solid(.track))
+        var from = start
+        let to: Double
+        if s.indeterminate {
+            let length = 0.35 * sweep
+            from = start + (0.5 - 0.5 * cos(s.indeterminateTime * Double.pi)) * (sweep - length)
+            to = from + length
+        } else {
+            to = start + clamp01(s.value) * sweep
+        }
+        guard to - from > 0.0005 else { return }
+        // A round cap reaches back past `from`, where the conic would wrap around to its last stop.
+        let lead = p.strokeCap == .round ? min(Double.pi / 4, atan2(t / 2, max(r - t / 2, 1e-6))) : 0
+        arc(cx, cy, r, from, to, t, p.strokeCap, .conic(cx: cx, cy: cy, start: from - lead, stops: [
+            ProgressColorStop(offset: 0, color: .color, alpha: 0.2),
+            ProgressColorStop(offset: lead / tau, color: .color, alpha: 0.2),
+            ProgressColorStop(offset: (to - from + lead) / tau, color: .color, alpha: 1),
+        ]))
+    }
+
+    mutating func gaugeDots(_ size: Double, _ start: Double) {
+        let n = p.segments
+        let count = Double(n)
+        let dr = max(1.5, p.thickness * 0.5)
+        let cx = size / 2
+        let cy = size / 2
+        let r = size / 2 - dr - 1
+        let sweep = p.sweepAngle
+        let center = (0.5 - 0.5 * cos(s.indeterminateTime * Double.pi)) * count
+        for i in 0..<n {
+            let a = n == 1 ? start + sweep / 2 : start + Double(i) * sweep / (count - 1)
+            let x = cx + r * cos(a)
+            let y = cy + r * sin(a)
+            circle(x, y, dr, solid(.track))
+            if s.indeterminate {
+                let k = bump(Double(i) + 0.5 - center, 2)
+                if k > 0.01 { circle(x, y, dr, solid(.color, k)) }
+                continue
+            }
+            let fill = clamp01(clamp01(s.value) * count - Double(i))
+            if fill > 0 { circle(x, y, dr * fill.squareRoot(), solid(.color)) }
+        }
+    }
+
     mutating func gauge(_ size: Double) {
         let t = p.thickness
         let cap = p.strokeCap
@@ -776,7 +1112,13 @@ private struct Builder {
         let end = start + sweep
         if r > 0 {
             let gapAngle = (p.trackGap + (cap == .round ? t : 0)) / r
-            if p.variant == .segmented {
+            if p.variant == .needle {
+                gaugeNeedle(size, start)
+            } else if p.variant == .gradient {
+                gaugeGradient(size, start)
+            } else if p.variant == .dots {
+                gaugeDots(size, start)
+            } else if p.variant == .segmented {
                 segmentedArc(cx, cy, r, start, sweep, false)
             } else if s.indeterminate {
                 let length = 0.24 * sweep
@@ -795,7 +1137,8 @@ private struct Builder {
             }
         }
         if p.showLabel && !s.indeterminate {
-            text(cx, cy, labelSize(size), ProgressGeometry.label(s.value), solid(.label))
+            let needle = p.variant == .needle
+            text(cx, needle ? cy + r * 0.55 : cy, needle ? labelSize(size) * 0.7 : labelSize(size), ProgressGeometry.label(s.value), solid(.label))
         }
     }
 
@@ -816,7 +1159,58 @@ private struct Builder {
         return points
     }
 
+    /// Like `liquidSurface`, for a liquid filling the box from `boxTop` to `boxBottom`.
+    func liquidSurfaceBox(_ left: Double, _ right: Double, _ boxTop: Double, _ boxBottom: Double, _ level: Double, _ amp: Double, _ wavelength: Double, _ phase: Double) -> [Double] {
+        let y = boxBottom - level * (boxBottom - boxTop)
+        let end = right + 2
+        let n = max(1, steps((end - left) / 2))
+        var points = [left, boxBottom + 1]
+        points.reserveCapacity(2 * n + 6)
+        for i in 0...n {
+            let x = left + (end - left) * Double(i) / Double(n)
+            points.append(x)
+            points.append(y + amp * sin(x / wavelength * tau + phase))
+        }
+        points.append(end)
+        points.append(boxBottom + 1)
+        return points
+    }
+
+    mutating func liquidHeart(_ size: Double) {
+        let ring = max(1.5, p.thickness * 0.6)
+        let cx = size / 2
+        let cy = size / 2
+        let half = (size - ring) / 2
+        let inner = half - ring / 2 - max(1.5, p.trackGap * 0.6)
+        if inner > 0 {
+            let boxTop = cy - inner * heartHalfHeight
+            let boxBottom = cy + inner * heartHalfHeight
+            let level = s.indeterminate ? 0.5 + 0.14 * sin(s.indeterminateTime * 1.8) : clamp01(s.value)
+            let amp = inner * (s.indeterminate ? 0.09 : 0.07 * s.wave)
+            let wavelength = inner * 1.35
+            let cycles = s.time * p.waveSpeed * 0.8
+            let front = liquidSurfaceBox(cx - inner, cx + inner, boxTop, boxBottom, level, amp, wavelength, mod(cycles, 1) * tau)
+            let back = liquidSurfaceBox(cx - inner, cx + inner, boxTop, boxBottom, level, amp * 0.8, wavelength, 2 - mod(cycles * 0.7, 1) * tau)
+            let p = self.p
+            let s = self.s
+            let content = nested { b in
+                b.rect(cx - inner, boxTop, inner * 2, boxBottom - boxTop, 0, solid(.track))
+                b.out.append(.polygon(points: back, paint: solid(.color, 0.45)))
+                b.out.append(.polygon(points: front, paint: solid(.color)))
+                if p.showLabel && !s.indeterminate {
+                    b.invertedLabel(ProgressGeometry.label(s.value), cx, cy - inner * 0.12, labelSize(size) * 0.8, .polygon(points: front))
+                }
+            }
+            out.append(.clip(shape: .polygon(points: heartPoints(cx, cy, inner)), commands: content))
+        }
+        out.append(.polyline(points: heartPoints(cx, cy, half), closed: true, lineWidth: ring, cap: .butt, paint: solid(.color)))
+    }
+
     mutating func liquid(_ size: Double) {
+        if p.variant == .heart {
+            liquidHeart(size)
+            return
+        }
         let ring = max(1.5, p.thickness * 0.6)
         let cx = size / 2
         let cy = size / 2
@@ -922,22 +1316,64 @@ private struct Builder {
 
     mutating func border(_ w: Double, _ h: Double) {
         let t = p.thickness
-        guard w > t, h > t else { return }
-        let path = borderPath(w, h, t / 2, p.cornerRadius - t / 2)
-        out.append(.polyline(points: Array(path.points.dropLast(2)), closed: true, lineWidth: t, cap: .butt, paint: solid(.track)))
+        let glow = p.variant == .glow ? borderGlow : 0
+        let inset = t / 2 + glow
+        guard w > 2 * inset, h > 2 * inset else { return }
+        let path = borderPath(w, h, inset, p.cornerRadius - inset)
+        if p.variant == .segmented {
+            borderSegmented(path)
+            return
+        }
+        let track = glow > 0 ? solid(.color, 0.14) : solid(.track)
+        out.append(.polyline(points: Array(path.points.dropLast(2)), closed: true, lineWidth: t, cap: .butt, paint: track))
+        let cap = p.strokeCap
+        func active(_ b: inout Builder, _ from: Double, _ to: Double) {
+            if glow > 0 {
+                b.strokeAlong(path, from, to, t + 2 * glow, cap, solid(.color, 0.12))
+                b.strokeAlong(path, from, to, t + glow, cap, solid(.color, 0.22))
+            }
+            b.strokeAlong(path, from, to, t, cap, solid(.color))
+        }
         if s.indeterminate {
             let (a0, a1) = circularArc(s.indeterminateTime)
             let from = mod(a0 / tau, 1)
-            strokeAlong(path, from, from + (a1 - a0) / tau, t, p.strokeCap, solid(.color))
+            active(&self, from, from + (a1 - a0) / tau)
         } else {
             let v = clamp01(s.value)
-            if v > 0.0005 { strokeAlong(path, 0, v, t, p.strokeCap, solid(.color)) }
+            if v > 0.0005 { active(&self, 0, v) }
+        }
+    }
+
+    mutating func borderSegmented(_ path: BorderPath) {
+        let n = p.segments
+        let count = Double(n)
+        let t = p.thickness
+        let cap = p.strokeCap
+        let gap = n > 1 ? (max(2, p.trackGap) + (cap == .round ? t : 0)) / path.total : 0
+        let segment = 1 / count - gap
+        guard segment > 0 else { return }
+        let center = mod(s.indeterminateTime / 1.4, 1) * count
+        for i in 0..<n {
+            let a = Double(i) / count + gap / 2
+            strokeAlong(path, a, a + segment, t, cap, solid(.track))
+            if s.indeterminate {
+                let m = mod(Double(i) + 0.5 - center, count)
+                let k = bump(min(m, count - m), count * 0.3)
+                if k > 0.01 { strokeAlong(path, a, a + segment, t, cap, solid(.color, k)) }
+                continue
+            }
+            let fill = clamp01(clamp01(s.value) * count - Double(i))
+            if fill > 0.001 { strokeAlong(path, a, a + segment * fill, t, cap, solid(.color)) }
         }
     }
 
     // MARK: bars, grid, battery
 
     mutating func bars(_ w: Double, _ h: Double) {
+        if p.variant == .arcs {
+            barsArcs(w, h)
+            return
+        }
         let n = p.segments
         let count = Double(n)
         let gap = max(3, p.trackGap)
@@ -949,11 +1385,42 @@ private struct Builder {
             let height = h * (0.25 + 0.75 * Double(i + 1) / count)
             let x = Double(i) * (width + gap)
             let y = h - height
-            rect(x, y, width, height, radius, solid(.track))
             let fill = s.indeterminate ? bump(Double(i) + 0.5 - center, 1.6) : clamp01(clamp01(s.value) * count - Double(i))
+            if p.variant == .dots {
+                let d = min(width, h)
+                let pitch = d + max(1.5, gap * 0.5)
+                let dots = max(1, Int(floor((height - d) / pitch + 1e-9)) + 1)
+                for j in 0..<dots {
+                    let dy = h - d / 2 - Double(j) * pitch
+                    circle(x + width / 2, dy, d / 2, solid(.track))
+                    let k = clamp01(fill * Double(dots) - Double(j))
+                    if k > 0.01 { circle(x + width / 2, dy, d / 2, solid(.color, k)) }
+                }
+                continue
+            }
+            rect(x, y, width, height, radius, solid(.track))
             if fill <= 0.001 { continue }
             let inner = nested { $0.rect(x, h - height * fill, width, height * fill, 0, solid(.color)) }
             out.append(.clip(shape: rectClip(x, y, width, height, radius), commands: inner))
+        }
+    }
+
+    mutating func barsArcs(_ w: Double, _ h: Double) {
+        let n = p.segments
+        let count = Double(n)
+        let t = p.thickness
+        let spread = Double.pi / 4
+        let cx = w / 2
+        let cy = h - t
+        let outer = min(cy - t / 2, (w / 2 - t / 2) / sin(spread))
+        guard outer > 0 else { return }
+        circle(cx, cy, t * 0.8, solid(.color))
+        let center = mod(s.indeterminateTime / 1.4, 1) * (count + 2) - 1
+        for i in 0..<n {
+            let r = outer * Double(i + 1) / count
+            arc(cx, cy, r, top - spread, top + spread, t, p.strokeCap, solid(.track))
+            let k = s.indeterminate ? bump(Double(i) + 0.5 - center, 1.5) : clamp01(clamp01(s.value) * count - Double(i))
+            if k > 0.01 { arc(cx, cy, r, top - spread, top + spread, t, p.strokeCap, solid(.color, k)) }
         }
     }
 
@@ -970,13 +1437,23 @@ private struct Builder {
             for c in 0..<k {
                 let x = Double(c) * (cell + gap)
                 let y = Double(r) * (cell + gap)
-                rect(x, y, cell, cell, radius, solid(.track))
+                let dots = p.variant == .dots
+                if dots {
+                    circle(x + cell / 2, y + cell / 2, cell / 2, solid(.track))
+                } else {
+                    rect(x, y, cell, cell, radius, solid(.track))
+                }
                 let fill = s.indeterminate
                     ? bump(Double(r + c) - center, 1.8)
                     : clamp01(clamp01(s.value) * count * count - Double(rank[r * k + c]))
                 if fill <= 0.01 { continue }
                 let side = cell * (0.3 + 0.7 * fill)
-                rect(x + (cell - side) / 2, y + (cell - side) / 2, side, side, radius * side / cell, solid(.color, min(1, fill * 1.6)))
+                let paint = solid(.color, min(1, fill * 1.6))
+                if dots {
+                    circle(x + cell / 2, y + cell / 2, side / 2, paint)
+                } else {
+                    rect(x + (cell - side) / 2, y + (cell - side) / 2, side, side, radius * side / cell, paint)
+                }
             }
         }
     }
@@ -1014,8 +1491,23 @@ private struct Builder {
         let p = self.p
         let s = self.s
         let content = nested { b in
-            b.rect(pad, pad, iw, ih, 0, solid(.track))
-            b.rect(pad, pad, filled, ih, 0, solid(.color, alpha))
+            if p.variant == .segmented {
+                let n = p.segments
+                let count = Double(n)
+                let gap = max(1.5, p.trackGap * 0.5)
+                let cell = (iw - gap * (count - 1)) / count
+                if cell > 0 {
+                    for i in 0..<n {
+                        let x = pad + Double(i) * (cell + gap)
+                        b.rect(x, pad, cell, ih, 0, solid(.track))
+                        let k = clamp01(filled / iw * count - Double(i))
+                        if k > 0.01 { b.rect(x, pad, cell, ih, 0, solid(.color, alpha * k)) }
+                    }
+                }
+            } else {
+                b.rect(pad, pad, iw, ih, 0, solid(.track))
+                b.rect(pad, pad, filled, ih, 0, solid(.color, alpha))
+            }
             if p.showLabel && !s.indeterminate {
                 b.invertedLabel(ProgressGeometry.label(s.value), pad + iw / 2, pad + ih / 2, max(10, min(ih * 0.55, 30)), rectClip(pad, pad, filled, ih, 0))
             }
@@ -1034,6 +1526,61 @@ private struct Builder {
             }
             out.append(.polygon(points: points, paint: solid(.white)))
             out.append(.polyline(points: points, closed: true, lineWidth: 1.2, cap: .butt, paint: solid(.color)))
+        }
+    }
+
+    // MARK: hourglass
+
+    mutating func hourglass(_ size: Double) {
+        let ring = max(1.5, p.thickness * 0.5)
+        let cx = size / 2
+        let cy = size / 2
+        let half = size * 0.3
+        let glassTop = size * 0.1
+        let glassBottom = size * 0.9
+        let neck = max(1, size * 0.035)
+        let left = cx - half
+        let right = cx + half
+        let bulb = cy - glassTop
+        let v: Double
+        var flip = 0.0
+        if s.indeterminate {
+            let u = mod(s.indeterminateTime / 2.4, 1)
+            v = easeInOut(clamp01(u / 0.8))
+            flip = Double.pi * easeInOut(clamp01((u - 0.8) / 0.2))
+        } else {
+            v = clamp01(s.value)
+        }
+        let lift = 1 - 0.2 * sin(flip)
+        let rc = cos(flip) * lift
+        let rs = sin(flip) * lift
+        func turn(_ points: [Double]) -> [Double] {
+            var turned: [Double] = []
+            turned.reserveCapacity(points.count)
+            var i = 0
+            while i < points.count {
+                let dx = points[i] - cx
+                let dy = points[i + 1] - cy
+                turned.append(cx + dx * rc - dy * rs)
+                turned.append(cy + dx * rs + dy * rc)
+                i += 2
+            }
+            return turned
+        }
+        let glass = turn([left, glassTop, right, glassTop, cx + neck, cy, right, glassBottom, left, glassBottom, cx - neck, cy])
+        out.append(.polygon(points: glass, paint: solid(.track)))
+        let upper = bulb * (1 - v).squareRoot()
+        var sand: [ProgressCommand] = []
+        if v < 0.9995 { sand.append(.polygon(points: turn([left, cy - upper, right, cy - upper, right, cy, left, cy]), paint: solid(.color))) }
+        if v > 0.0005 { sand.append(.polygon(points: turn([left, cy + upper, right, cy + upper, right, glassBottom, left, glassBottom]), paint: solid(.color))) }
+        out.append(.clip(shape: .polygon(points: glass), commands: sand))
+        if v > 0.0005 && v < 0.9995 && flip == 0 {
+            out.append(.line(x0: cx, y0: cy, x1: cx, y1: cy + upper, lineWidth: max(1, neck * 0.8), cap: .butt, paint: solid(.color)))
+        }
+        out.append(.polyline(points: glass, closed: true, lineWidth: ring, cap: .butt, paint: solid(.color, 0.7)))
+        for y in [glassTop, glassBottom] {
+            let cap = turn([left - ring * 1.5, y, right + ring * 1.5, y])
+            out.append(.line(x0: cap[0], y0: cap[1], x1: cap[2], y1: cap[3], lineWidth: ring * 1.6, cap: .round, paint: solid(.color)))
         }
     }
 }

@@ -3,8 +3,8 @@ import {
   progressContentInset,
   progressIntrinsicSize,
   resolveProgress,
-} from '@loader-kit/spec';
-import type { ProgressOptions, ResolvedProgress } from '@loader-kit/spec';
+} from '@loader-kit/spec/lite';
+import type { ProgressOptions, ResolvedProgress } from '@loader-kit/spec/lite';
 import type { ReactNode } from 'react';
 import { StyleSheet } from 'react-native';
 import type { ColorValue, ViewProps, ViewStyle } from 'react-native';

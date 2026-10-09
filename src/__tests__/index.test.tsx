@@ -10,7 +10,7 @@ import {
 import { serializeParams, serializeSpec, toNativeProps } from '../nativeProps';
 import { progressLayoutStyle, toProgressViews } from '../progressProps';
 import type { LoaderKitProgressProps } from '../progressProps';
-import { resolveProgress } from '@loader-kit/spec';
+import { resolveProgress } from '@loader-kit/spec/lite';
 import { StyleSheet } from 'react-native';
 
 const custom = defineIndicator({
@@ -310,5 +310,22 @@ describe('exports', () => {
         tracks: [],
       })
     ).toThrow(InvalidIndicatorError);
+  });
+
+  // Metro bundles every module it reaches, so the main spec entry would add every built-in spec
+  // and the progress drawing code to the app.
+  it('imports only the lite entry of the spec', () => {
+    const fs = jest.requireActual<typeof import('fs')>('fs');
+    const path = jest.requireActual<typeof import('path')>('path');
+    const dir = path.join(__dirname, '..');
+    for (const file of fs
+      .readdirSync(dir)
+      .filter((name) => /\.tsx?$/.test(name))) {
+      const source = fs.readFileSync(path.join(dir, file), 'utf8');
+      expect([
+        file,
+        /['"]@loader-kit\/spec(?!\/lite['"])/.test(source),
+      ]).toEqual([file, false]);
+    }
   });
 });

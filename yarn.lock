@@ -2432,10 +2432,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@loader-kit/spec@npm:1.0.0-rc.1":
-  version: 1.0.0-rc.1
-  resolution: "@loader-kit/spec@npm:1.0.0-rc.1"
-  checksum: cd6c5e673a0bff4b05ebb3138eefbb1b46860bac2905a9d17469927aef261ce093aa2799e78e79fee367f68861eef6db0b9c7f360bbf58b5c38c6f2b90d818db
+"@loader-kit/spec@npm:1.0.0-rc.2":
+  version: 1.0.0-rc.2
+  resolution: "@loader-kit/spec@npm:1.0.0-rc.2"
+  checksum: 3a09b4bc4f912928f3116fd2dd36aae00822d5821827fd06199b8b03ea2ce11d6fe887433d3edfa0c5c3f2ea3158b8cb7e5fbef6419c11e00e0778559951d9bf
   languageName: node
   linkType: hard
 
@@ -9355,7 +9355,7 @@ __metadata:
     "@eslint/eslintrc": ^3.3.0
     "@eslint/js": ^9.22.0
     "@evilmartians/lefthook": ^1.5.0
-    "@loader-kit/spec": 1.0.0-rc.1
+    "@loader-kit/spec": 1.0.0-rc.2
     "@react-native-community/cli": 15.0.0-alpha.2
     "@react-native/babel-preset": 0.79.2
     "@react-native/eslint-config": ^0.78.0
