@@ -1,6 +1,6 @@
 {
   "name": "react-native-loader-kit",
-  "version": "4.1.0",
+  "version": "5.0.0-rc.0",
   "description": "Beautiful native loading indicators for React Native: one JSON spec per indicator, rendered identically on iOS and Android, with custom indicators, params and playback control",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
